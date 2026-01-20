@@ -1,0 +1,31 @@
+{
+  "name": "your-employee-style",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "db:seed": "astro db seed"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.0.9",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@astrojs/db": "^0.18.3",
+    "@astrojs/node": "^9.5.2",
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^5.16.11",
+    "better-sqlite3": "^12.6.2",
+    "nanostores": "^1.1.0",
+    "tailwindcss": "^3.4.19",
+    "zod": "^4.3.5"
+  }
+}
