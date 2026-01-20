@@ -18,6 +18,36 @@ yarn tsx scripts/init-db.ts
 # Note: Use yarn, not npm (npm has permission issues on this system)
 ```
 
+## Admin Dashboard
+
+The application includes a production-grade admin dashboard at `/admin` with:
+- **First-time setup**: Create admin account on first visit to `/admin/login`
+- **Authentication**: Secure login with bcrypt password hashing and session management
+- **Dashboard**: Overview with assessment statistics and quick actions
+- **Reports**: View all user assessments with results and timestamps
+- **Settings**: Change admin password with validation
+
+### Admin Routes
+- `/admin/login` - Login or first-time setup
+- `/admin/dashboard` - Main dashboard
+- `/admin/reports` - User assessment results table
+- `/admin/settings` - Password change
+
+### Admin API Endpoints
+- `POST /admin/api/setup` - Create initial admin account
+- `POST /admin/api/login` - Authenticate and get session token
+- `POST /admin/api/logout` - Invalidate session
+- `POST /admin/api/change-password` - Update admin password
+- `GET /admin/api/reports` - Get all user results (authenticated)
+- `GET /admin/api/check-auth` - Verify authentication status
+
+### Admin Security
+- Password hashing with bcrypt (10 salt rounds)
+- Session tokens stored in memory (server-side) and HTTP-only cookies
+- 24-hour session expiration
+- Middleware protection for all admin routes except `/admin/login`
+- Automatic redirect if not authenticated
+
 ## Testing
 
 No automated test suite exists. Manual testing steps:
@@ -71,6 +101,13 @@ No automated test suite exists. Manual testing steps:
 - Use transactions for bulk operations: `const insertMany = db.transaction(...)`
 - Store database in `data/` directory
 
+### Authentication (Admin)
+- bcrypt for password hashing (10 salt rounds)
+- Session tokens stored in memory (Map) and HTTP-only cookies
+- 24-hour session expiration with automatic cleanup
+- Middleware-based route protection in `src/middleware.ts`
+- Session validation on each protected route
+
 ### Astro Components
 - Frontmatter (`---`) for imports, logic, and props
 - Define props interface at top of frontmatter
@@ -103,13 +140,22 @@ No automated test suite exists. Manual testing steps:
 ### File Organization
 ```
 src/
-├── layouts/Layout.astro      # Base HTML structure
+├── layouts/
+│   ├── Layout.astro           # Base HTML structure for main site
+│   └── AdminLayout.astro     # Admin dashboard layout with sidebar
 ├── lib/                      # Shared utilities
 │   ├── db.ts                # Database connection & models
+│   ├── auth.ts              # Admin authentication utilities
 │   ├── questions.ts         # Data/constants
 │   └── validation.ts       # Zod schemas
 ├── pages/
-│   ├── api/                # API endpoints (POST/GET)
+│   ├── admin/
+│   │   ├── api/           # Admin API endpoints
+│   │   ├── dashboard.astro
+│   │   ├── reports.astro
+│   │   ├── settings.astro
+│   │   └── login.astro
+│   ├── api/                # Main API endpoints (POST/GET)
 │   └── *.astro             # Page components
 ```
 

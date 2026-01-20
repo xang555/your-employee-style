@@ -34,6 +34,16 @@ db.exec(`
   );
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS admin (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
 const existingResults = db.prepare('SELECT COUNT(*) as count FROM results').get() as { count: number };
 
 if (existingResults.count === 0) {
@@ -135,3 +145,31 @@ export type Result = {
   strengths: string;
   hr_advice: string;
 };
+
+export type Admin = {
+  id: number;
+  username: string;
+  password_hash: string;
+  created_at: Date;
+  updated_at: Date;
+};
+
+export function adminExists(): boolean {
+  const result = db.prepare('SELECT COUNT(*) as count FROM admin').get() as { count: number };
+  return result.count > 0;
+}
+
+export function getAdminByUsername(username: string): Admin | undefined {
+  return db.prepare('SELECT * FROM admin WHERE username = ?').get(username) as Admin | undefined;
+}
+
+export function createAdmin(username: string, passwordHash: string): void {
+  db.prepare('INSERT INTO admin (username, password_hash) VALUES (?, ?)').run(username, passwordHash);
+}
+
+export function updateAdminPassword(username: string, passwordHash: string): void {
+  db.prepare('UPDATE admin SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?').run(
+    passwordHash,
+    username
+  );
+}
