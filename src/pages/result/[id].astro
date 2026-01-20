@@ -1,34 +1,37 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import db, { type User, type Result } from '../../lib/db';
-
+import { getStyleIconSVG, getStyleIconColor } from '../../lib/icons';
+ 
 const { id } = Astro.params;
-
+ 
 const userId = parseInt(id);
 if (isNaN(userId)) {
   return Astro.redirect('/');
 }
-
+ 
 const userStmt = db.prepare('SELECT * FROM users WHERE id = ?');
 const userRow = userStmt.get(userId) as User | undefined;
-
+ 
 if (!userRow) {
   return Astro.redirect('/');
 }
-
+ 
 const resultStmt = db.prepare('SELECT * FROM results WHERE id = ?');
 const resultRow = resultStmt.get(userRow.result_id) as Result | undefined;
-
+ 
 if (!resultRow) {
   return Astro.redirect('/');
 }
-
+ 
 const result = resultRow;
-
+const styleIcon = getStyleIconSVG(userRow.result_id);
+const styleIconColor = getStyleIconColor(userRow.result_id);
+ 
 const ogTitle = `I am a ${result.name}! What are you?`;
 const ogDescription = `${result.definition} Take the Employee Style Assessment to discover your professional DNA.`;
 const ogImage = `/og-result-${userRow.result_id}.jpg`;
-
+ 
 const shareUrl = new URL(Astro.url.pathname, Astro.site).toString();
 const shareText = `I am a ${result.name}! Take the Employee Style Assessment to discover your professional DNA.`;
 ---
@@ -38,10 +41,8 @@ const shareText = `I am a ${result.name}! Take the Employee Style Assessment to 
     <div class="max-w-4xl mx-auto">
       <!-- Success Header -->
       <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-600 to-purple-600 rounded-full mb-6 shadow-lg">
-          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+        <div class={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-600 to-purple-600 rounded-full mb-6 shadow-lg ${styleIconColor}`}>
+          <div set:html={styleIcon} class="w-10 h-10" />
         </div>
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
           Assessment Complete!
@@ -91,7 +92,7 @@ const shareText = `I am a ${result.name}! Take the Employee Style Assessment to 
               </svg>
               HR & Management Advice
             </h3>
-            <p class="text-gray-700 leading-relaxed">{result.hrAdvice}</p>
+            <p class="text-gray-700 leading-relaxed">{result.hr_advice}</p>
           </div>
         </div>
       </div>
