@@ -27,5 +27,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
   
-  return next();
+  try {
+    return next();
+  } catch (error) {
+    console.error('Middleware error:', error);
+    context.locals.error = error;
+    return context.redirect('/500');
+  }
 });

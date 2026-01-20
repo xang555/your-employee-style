@@ -14,5 +14,6 @@ declare namespace App {
     admin?: {
       username: string;
     };
+    error?: Error;
   }
 }

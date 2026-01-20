@@ -28,6 +28,7 @@ The application includes a production-grade admin dashboard at `/admin` with:
 - **Settings**: Change admin password with validation
 
 ### Admin Routes
+- `/admin` - Redirects to login (or dashboard if authenticated)
 - `/admin/login` - Login or first-time setup
 - `/admin/dashboard` - Main dashboard
 - `/admin/reports` - User assessment results table
@@ -156,6 +157,8 @@ src/
 │   │   ├── settings.astro
 │   │   └── login.astro
 │   ├── api/                # Main API endpoints (POST/GET)
+│   ├── 404.astro           # 404 error page
+│   ├── 500.astro           # 500 error page
 │   └── *.astro             # Page components
 ```
 
