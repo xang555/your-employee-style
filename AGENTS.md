@@ -324,85 +324,115 @@ Generates shareable poster image for social media.
 - Table showing all user assessments
 - Columns: Style icon, Name, Email, Result type, Date, Actions
 - **"View Result" button** - Opens user's result page in new tab using access token
+- **Export CSV button** - Downloads all user assessments as CSV file with bilingual headers
 - Supports both Thai and English
 - Real-time data fetching
+- Refresh button to reload data
+
+**CSV Export Implementation:**
+```javascript
+// Client-side CSV generation
+function exportToCSV() {
+  const headers = [tableName, tableEmail, tableResult, tableDate];
+  let csvContent = headers.join(',') + '\n';
+
+  reports.forEach(report => {
+    const row = [
+      `"${report.name}"`,
+      `"${report.email}"`,
+      `"${getStyleName(report.result_id)}"`,
+      `"${new Date(report.created_at).toLocaleString()}"`
+    ];
+    csvContent += row.join(',') + '\n';
+  });
+
+  // Create download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `employee-style-reports-${date}.csv`;
+  link.click();
+}
+```
 
 ## Social Sharing Features
 
-### Poster Image Generation
-**Location:** `src/pages/api/generate-poster.ts`
+### Poster Image Generation (Server-Side)
+**Location:** `src/pages/result/[id].astro` (generates on page load)
 
 **User flow:**
 1. User completes quiz, gets result page
-2. User clicks "Download Poster" or "Share Image" button
-3. API generates 1200x630px poster if not exists
-4. Desktop: Image downloads
-5. Mobile: Native share sheet with image
+2. Server automatically generates 1200x630px poster if not exists
+3. Poster is cached in database for future visits
+4. Open Graph meta tags include poster URL for social media crawlers
 
 **Implementation:**
 ```typescript
-// Server-side canvas generation
-import { createCanvas } from 'canvas';
-
-const canvas = createCanvas(1200, 630);
+// Server-side generation in result page
+const POSTER_WIDTH = 1200;
+const POSTER_HEIGHT = 630;
+const canvas = createCanvas(POSTER_WIDTH, POSTER_HEIGHT);
 const ctx = canvas.getContext('2d');
 
 // Style-specific colors
 const colorMap = {
   1: '#3B82F6',  // blue
   2: '#22C55E',  // green
-  // ... etc
+  3: '#EAB308',  // yellow
+  4: '#A855F7',  // purple
+  5: '#10B981',  // emerald
+  6: '#F97316',  // orange
+  7: '#EC4899',  // pink
+  8: '#06B6D4',  // cyan
+  9: '#F43F5E'   // rose
 };
 
-// Draw gradient, card, text, save to /public/posters/
-const buffer = canvas.toBuffer('image/png');
-await fs.writeFile(filePath, buffer);
+// Draw gradient, card, icon, text
+// Save to /public/posters/
+// Update database with poster path
+const ogImage = new URL(posterImageUrl, Astro.url).href;
 ```
 
 ### Share Buttons (src/pages/result/[id].astro)
 
-**Download Poster Button:**
-- Works on desktop and mobile
-- Generates poster if needed
-- Downloads as PNG file
+**Link Sharing with Open Graph:**
+- **X (Twitter)**: Shares link with pre-filled text
+- **Facebook**: Shares link - Facebook crawler pulls OG tags (shows poster image)
+- **WhatsApp**: Shares link with pre-filled text and URL
+- **Telegram**: Shares link with pre-filled text and URL
 
-**Native Share Button:**
-- Uses Web Share API (`navigator.share()`)
-- Only shows on supported devices (mobile)
-- Shares actual image file
-- Falls back to download if not supported
+**Share Button Implementation:**
+```astro
+<!-- X (Twitter) -->
+<a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}>
+  {t('result.shareX')}
+</a>
 
-**Client-side implementation:**
+<!-- Facebook -->
+<a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}>
+  {t('result.shareFacebook')}
+</a>
+
+<!-- WhatsApp -->
+<a href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`}>
+  {t('result.shareWhatsApp')}
+</a>
+
+<!-- Telegram -->
+<a href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`}>
+  {t('result.shareTelegram')}
+</a>
+```
+
+**Important:** Social platforms (Facebook, LinkedIn, etc.) crawl the URL and extract Open Graph meta tags to display image previews. The poster image URL must be absolute (full URL) for crawlers to access it.
+
+### Copy Link Button
 ```javascript
-// Generate poster
-async function generatePoster() {
-  const response = await fetch('/api/generate-poster', {
-    method: 'POST',
-    body: JSON.stringify({ token: accessToken, locale })
-  });
-  const data = await response.json();
-  return data.posterUrl;
-}
-
-// Download
-async function downloadPoster() {
-  const posterUrl = await generatePoster();
-  const response = await fetch(posterUrl);
-  const blob = await response.blob();
-  // Trigger download...
-}
-
-// Native share (mobile)
-async function nativeShareImage() {
-  const posterUrl = await generatePoster();
-  const blob = await fetch(posterUrl).then(r => r.blob());
-  const file = new File([blob], 'style.png', { type: 'image/png' });
-
-  await navigator.share({
-    files: [file],
-    title: 'My Work Style',
-    text: 'Discover my work style!'
-  });
+// Copy link functionality
+async function copyLink() {
+  const shareUrl = window.location.href;
+  await navigator.clipboard.writeText(shareUrl);
+  // Show "Copied!" feedback
 }
 ```
 
@@ -675,9 +705,12 @@ rm data/assessment.db-wal
 
 ### Added
 - ✅ Access token security system (replaces sequential IDs)
-- ✅ Poster image generation for social sharing
-- ✅ Download and native share buttons on result page
+- ✅ Server-side poster image generation (automatic on result page load)
+- ✅ Open Graph meta tags for social media sharing
+- ✅ Link sharing buttons (X, Facebook, WhatsApp, Telegram)
 - ✅ "View Result" buttons in admin reports table
+- ✅ **Export CSV functionality** in admin reports page
+- ✅ **Language switcher dropdown** in admin sidebar (with logout)
 - ✅ Database migration support for new columns
 - ✅ Git ignore for generated poster images
 
@@ -685,6 +718,10 @@ rm data/assessment.db-wal
 - ✅ Progress percentage rounding (no more decimals)
 - ✅ Thai translation typos and improvements
 - ✅ Admin reports table syntax errors
+- ✅ WhatsApp and Telegram icons (correct brand logos)
+- ✅ Facebook share URL (removed quote parameter, uses only URL)
+- ✅ Social sharing - changed from file sharing to link sharing with OG tags
+- ✅ TypeScript errors in AdminLayout
 
 ### Database Migrations
 The app automatically handles schema changes:
@@ -692,13 +729,37 @@ The app automatically handles schema changes:
 - `poster_image` column added for caching
 - Uses ALTER TABLE with try/catch for existing databases
 
+## Admin Dashboard Features
+
+### Language Switcher
+- Located in sidebar bottom (settings icon dropdown)
+- Shows current language (ไทย/English) with checkmark
+- Click to change language - updates all admin pages
+- Includes logout button in same dropdown
+- Auto-closes when clicking outside
+
+### Translation Keys (Admin)
+```typescript
+admin: {
+  // ... existing keys
+  exportCSV: string;          // "ส่งออก CSV" / "Export CSV"
+  exportCSVSuccess: string;   // "ส่งออกข้อมูลสำเร็จแล้ว" / "Data exported successfully"
+  shareX: string;             // "แชร์บน X" / "Share on X"
+  shareFacebook: string;      // "แชร์บน Facebook" / "Share on Facebook"
+  shareWhatsApp: string;      // "แชร์บน WhatsApp" / "Share on WhatsApp"
+  shareTelegram: string;      // "แชร์บน Telegram" / "Share on Telegram"
+}
+```
+
+
 ## Notes for Future Development
 
 1. **Session storage issue:** Quiz state lost on refresh - consider server-side session
 2. **Image enhancements:** Poster could use actual style icons instead of simple circles
 3. **Email notifications:** Could email results to users
-4. **Export features:** Export reports to CSV/PDF in admin
+4. **Export features:** Add PDF export option in admin (CSV already implemented)
 5. **Analytics:** Track completion rate, style distribution
 6. **A/B testing:** Test different question orders
 7. **Mobile app:** Could be wrapped as PWA or native app
+8. **Bulk actions:** Add ability to delete multiple reports at once
 

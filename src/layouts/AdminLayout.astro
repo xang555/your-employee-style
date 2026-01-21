@@ -1,5 +1,5 @@
 ---
-import { getTranslations, type Locale } from '../lib/translations';
+import { getTranslations } from '../lib/translations';
 
 interface Props {
   title: string;
@@ -255,8 +255,9 @@ const currentPath = url.pathname;
 
   // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
-    if (!dropdownBtn?.contains(e.target) && !dropdownMenu?.contains(e.target)) {
-      dropdownMenu?.classList.add('hidden');
+    const target = e.target as Node;
+    if (dropdownBtn && dropdownMenu && !dropdownBtn.contains(target) && !dropdownMenu.contains(target)) {
+      dropdownMenu.classList.add('hidden');
     }
   });
 
