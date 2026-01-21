@@ -130,6 +130,8 @@ export interface Translations {
     tableEmail: string;
     tableResult: string;
     tableDate: string;
+    tableAction: string;
+    viewResult: string;
     noAssessments: string;
     noAssessmentsDesc: string;
     assessmentReports: string;
@@ -285,6 +287,8 @@ export const translations: Record<Locale, Translations> = {
       tableEmail: 'อีเมล',
       tableResult: 'ผลลัพธ์',
       tableDate: 'วันที่',
+      tableAction: 'การกระทำ',
+      viewResult: 'ดูผลลัพธ์',
       noAssessments: 'ยังไม่มีแบบประเมิน',
       noAssessmentsDesc: 'เริ่มต้นด้วยการทำแบบประเมินเองหรือแชร์ให้ผู้อื่น',
       assessmentReports: 'รายงานแบบประเมิน',
@@ -494,6 +498,8 @@ export const translations: Record<Locale, Translations> = {
       tableEmail: 'Email',
       tableResult: 'Result',
       tableDate: 'Date',
+      tableAction: 'Actions',
+      viewResult: 'View Result',
       noAssessments: 'No assessments yet',
       noAssessmentsDesc: 'Get started by taking assessment yourself or sharing it with others.',
       assessmentReports: 'Assessment Reports',
