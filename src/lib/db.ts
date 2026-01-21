@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 
 const dbDir = path.join(process.cwd(), 'data');
 const dbPath = path.join(dbDir, 'assessment.db');
@@ -19,10 +20,18 @@ db.exec(`
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     result_id INTEGER NOT NULL,
+    access_token TEXT UNIQUE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (result_id) REFERENCES results(id)
   );
 `);
+
+// Add access_token column if it doesn't exist (for existing databases)
+try {
+  db.prepare(`ALTER TABLE users ADD COLUMN access_token TEXT UNIQUE`).run();
+} catch (e) {
+  // Column already exists, ignore error
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS results (
@@ -135,6 +144,7 @@ export type User = {
   name: string;
   email: string;
   result_id: number;
+  access_token: string;
   created_at: Date;
 };
 
@@ -172,4 +182,19 @@ export function updateAdminPassword(username: string, passwordHash: string): voi
     passwordHash,
     username
   );
+}
+
+/**
+ * Generate a cryptographically secure random access token
+ * Returns a 32-character hex string (128 bits of entropy)
+ */
+export function generateAccessToken(): string {
+  return crypto.randomBytes(16).toString('hex');
+}
+
+/**
+ * Get a user by their access token
+ */
+export function getUserByToken(token: string): User | undefined {
+  return db.prepare('SELECT * FROM users WHERE access_token = ?').get(token) as User | undefined;
 }

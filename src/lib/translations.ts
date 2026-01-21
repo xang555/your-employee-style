@@ -82,6 +82,14 @@ export interface Translations {
     copied: string;
     copyFailed: string;
   };
+  styles: {
+    [key: number]: {
+      name: string;
+      definition: string;
+      strengths: string;
+      hrAdvice: string;
+    };
+  };
   admin: {
     dashboard: string;
     reports: string;
@@ -299,6 +307,62 @@ export const translations: Record<Locale, Translations> = {
       failedLoadReports: 'โหลดรายานไม่สำเร็จ โปรดลองอีกครั้ง',
       style: 'สไตล์'
     },
+    styles: {
+      1: {
+        name: 'ผู้แสวงหาความปลอดภัย',
+        definition: 'คุณเจริญในสภาพแวดล้อมที่เสถียรและคาดเดาได้ คุณให้ความสำคัญกับความมั่นคงในงาน แนวทางที่ชัดเจน และกิจวัตรประจำที่สม่ำเสมอ',
+        strengths: 'ความน่าเชื่อถือ ความสม่ำเสมอ การจัดการความเสี่ยงเสี่ยง ความละเอียด และการสร้างกระบวนการที่เสถียร',
+        hrAdvice: 'ให้คำอธิบายงานที่ชัดเจน การให้ข้อเสนอแนะอย่างสม่ำเสมอ สภาพแวดล้อมการทำงานที่เสถียร และเน้นย้ำความปลอดภัยในระยะยาว หลีกเลี่ยงการปรับโครงสร้างบ่อย'
+      },
+      2: {
+        name: 'ผู้เชื่อมโยงสังคม',
+        definition: 'คุณได้รับพลังงานจากการทำงานเป็นทีมและการสร้างความสัมพันธ์ที่แข็งแกร่ง การร่วมมือและการเชื่อมต่อทางสังคมเป็นแก่นแท้ของความพึงพอใจในการทำงานของคุณ',
+        strengths: 'การสร้างทีม การสื่อสาร ความเห็นใจอกับผู้อื่น การร่วมมือ และการสร้างวัฒนธรรมการทำงานที่เป็นบวก',
+        hrAdvice: 'ส่งเสริมโปรเจ็กต์ทีม กิจกรรมทางสังคม โอกาสการเป็นที่ปรึกษา สร้างพื้นที่ร่วมมือ และยกย่องการมีส่วนร่วมในการสร้างความสัมพันธ์'
+      },
+      3: {
+        name: 'นักแสดงยอดเยี่ยม',
+        definition: 'คุณถูกขับเคลื่อนโดยความสำเร็จ การยอมรับ และการแข่งขัน คุณชอบตั้งเป้าหมายทะเม่งและได้รับการยอมรับสำหรับผลงานของคุณ',
+        strengths: 'การบรรลุเป้าหมาย แรงขับเคลื่อนที่แข่งขันได้ ความยอดเยี่ยมในการทำงาน และสร้างแรงบันดาลใจให้ผู้อื่นด้วยผลลัพธ์',
+        hrAdvice: 'ดำเนินการรางวัลตามผลงาน โปรแกรมการยอมรับในสาธารณะ KPI ที่ชัดเจน และโอกาสการเลื่อนขั้น เฉลิมฉลือชัยชนะอย่างเด่นชัด'
+      },
+      4: {
+        name: 'ผู้นำ',
+        definition: 'คุณมีความโนมเองต่อการรับผิดชอบและการตัดสินใจเชิงกลยุทธ์ คุณเพลิดเพลินกับความรับผิดชอบ อิทธิพล และการนำทีมสู่ความสำเร็จ',
+        strengths: 'การคิดเชิงกลยุทธ์ การตัดสินใจ การตั้งวิสัยทัศนะ การนำทิศทางทีม และความรับผิดชอบ',
+        hrAdvice: 'ให้โอกาสการเป็นผู้นำ อำนาจในการตัดสินใจ การฝึกอบรมผู้บริหาร และโปรเจ็กต์ที่ท้าทายซึ่งต้องการความเป็นเจ้าของ'
+      },
+      5: {
+        name: 'ผู้แสวงหารางวัล',
+        definition: 'การชดเชยค่าตอบแทนและผลประโยชน์ที่จับต้องได้เป็นแรงจูงใจหลักของคุณ คุณแสวงหาค่าจ้างที่เป็นธรรม โบนัส และรางวัลที่เป็นรูปธรรมสำหรับการมีส่วนร่วมของคุณ',
+        strengths: 'การวางแผนการเงิน การมุ่งเน้นผลตอบแทนต่อการลงทุน การตัดสินใจตามคุณค่า และทักษะการเจรจา',
+        hrAdvice: 'เสนอค่าตอบแทนที่แข่งขันได้ โครงสร้างโบนัสที่ชัดเจน มาตราเงินเดือนที่โปร่งใส และแรงจูงใจทางการเงินที่เกี่ยวข้องกับผลงาน'
+      },
+      6: {
+        name: 'ผู้เชี่ยวชาญ',
+        definition: 'คุณมีความหลงใหในความเชี่ยวชาญที่ลึกซึ้งในสาขาของคุณ คุณรักที่จะกลายเป็นผู้เชี่ยวชาญด้านเนื้อหาและแก้ปัญหาทางเทคนิคที่ซับซ้อน',
+        strengths: 'ความรู้ลึกซึ้ง การแก้ปัญหา ความเปี่ยนแย่งทางเทคนิค การเรียนรู้อย่างต่อเนื่อง และนวัตกรรมในพื้นที่เฉพาะทาง',
+        hrAdvice: 'สนับสนุนการศึกษาอย่างต่อเนื่อง การรับรอง โปรเจ็กต์เฉพาะทาง การยอมรับผู้เชี่ยวชาญ และโอกาสในการเป็นที่ปรึกษาในสาขาของพวกเขา'
+      },
+      7: {
+        name: 'นักสร้างสรรค์นวัตกรรม',
+        definition: 'คุณเจริญด้วยความแปลกใหม่ ความคิดสร้างสรรค์ และนวัตกรรม งานประจำทำให้คุณเหนื่อยล้า ในขณะที่ไอเดียใหม่และการแก้ปัญหาที่ผิดแบบแผนการทำให้คุณมีพลังงาน',
+        strengths: 'นวัตกรรม การแก้ปัญหาอย่างสร้างสรรค์ ความยืดหยุ่น การสร้างไอเดีย และการท้าทายสถานะเดิม',
+        hrAdvice: 'ให้เสรีภาพในการสร้างสรรค์ เวลาสำหรับนวัตกรรม ความหลากหลายในโปรเจ็กต์ การระดมสมอง และลดงานซ้ำๆ'
+      },
+      8: {
+        name: 'ผู้ทำงานอิสระ',
+        definition: 'คุณให้ความสำคัญกับอิสระและการจัดการตนเอง คุณทำงานได้ดีที่สุดเมื่อได้รับเสรีภาพในการตัดสินใจว่า อย่างไร เมื่อไร และที่ไหนที่คุณจะทำงานให้เสร็จ',
+        strengths: 'การกำหนดทิศทางด้วยตนเอง ความรับผิดชอบ การจัดการเวลา การแก้ปัญหาอย่างอิสระ และความริเริ่มต้น',
+        hrAdvice: 'เสนอการจัดเรียบรูปแบบการทำงานที่ยืดหยุ่น ตัวเลือกทำงานจากระยะทาง การประเมินผลตามผลลัพธ์ และการควบคุมเมาไมโครอแมนเนเจอร์น้อยที่สุด ไว้ใจในกระบวนการของพวกเขา'
+      },
+      9: {
+        name: 'ผู้บันเทิง',
+        definition: 'คุณนำพลัง อารมณ์ขัน และความเป็นบวกไปสู่ที่ทำงาน คุณเจริญเมื่อคุณสามารถทำให้งานสนุกสนานและสร้างบรรยากาศที่สนุกสนานสำหรับทีมของคุณ',
+        strengths: 'การยกระดับขวัญ พลังงานเป็นบวก การบรรเทาความเครียด การมีส่วนร่วมของทีม และการสร้างสภาพแวดล้อมการทำงานที่เพลิดเพลิน',
+        hrAdvice: 'อนุญาตให้แสดงบุคลิกภาพ สนับสนุนความริเริ่มต้นทางสังคม ยอมรับผลกระทบเชิงบวกต่อวัฒนธรรม และสร้างพื้นที่สำหรับความสนุก'
+      }
+    },
     errors: {
       notFound: 'ไม่พบหน้า',
       notFoundDesc: 'หน้าที่คุณค้นหาไม่มีอยู่หรือถูกย้ายแล้ว',
@@ -451,6 +515,62 @@ export const translations: Record<Locale, Translations> = {
       loadingReports: 'Loading reports...',
       failedLoadReports: 'Failed to load reports. Please try again.',
       style: 'Style'
+    },
+    styles: {
+      1: {
+        name: 'The Security Seeker',
+        definition: 'You thrive in stable, predictable environments where you know what to expect. You value job security, clear guidelines, and consistent routines.',
+        strengths: 'Reliability, consistency, risk management, thoroughness, and creating stable processes.',
+        hrAdvice: 'Provide clear job descriptions, regular feedback, stable work environment, and emphasize long-term security. Avoid frequent restructuring.'
+      },
+      2: {
+        name: 'The Social Connector',
+        definition: 'You are energized by teamwork and building strong relationships. Collaboration and interpersonal connections are at the heart of your work satisfaction.',
+        strengths: 'Team building, communication, empathy, collaboration, and creating positive work culture.',
+        hrAdvice: 'Encourage team projects, social events, mentorship opportunities. Create collaborative spaces and recognize relationship-building contributions.'
+      },
+      3: {
+        name: 'The Star Performer',
+        definition: 'You are driven by achievement, recognition, and competition. You love setting ambitious goals and being acknowledged for your accomplishments.',
+        strengths: 'Goal achievement, competitive drive, performance excellence, and inspiring others through results.',
+        hrAdvice: 'Implement performance-based rewards, public recognition programs, clear KPIs, and advancement opportunities. Celebrate wins visibly.'
+      },
+      4: {
+        name: 'The Leader',
+        definition: 'You have a natural inclination toward taking charge and making strategic decisions. You enjoy responsibility, influence, and guiding teams toward success.',
+        strengths: 'Strategic thinking, decision-making, vision setting, team direction, and accountability.',
+        hrAdvice: 'Provide leadership opportunities, decision-making authority, management training, and challenging projects requiring ownership.'
+      },
+      5: {
+        name: 'The Reward Seeker',
+        definition: 'Financial compensation and tangible benefits are primary motivators for you. You seek fair pay, bonuses, and material rewards for your contributions.',
+        strengths: 'Financial planning, ROI focus, value-driven decisions, and negotiation skills.',
+        hrAdvice: 'Offer competitive compensation, clear bonus structures, transparent pay scales, and financial incentives tied to performance.'
+      },
+      6: {
+        name: 'The Specialist',
+        definition: 'You are passionate about deep expertise in your field. You love becoming a subject matter expert and solving complex, technical problems.',
+        strengths: 'Deep knowledge, problem-solving, technical excellence, continuous learning, and innovation in specialized areas.',
+        hrAdvice: 'Support continuous education, certifications, specialized projects, expert recognition, and opportunities to mentor in their field.'
+      },
+      7: {
+        name: 'The Creative Innovator',
+        definition: 'You thrive on novelty, creativity, and innovation. Routine work drains you, while fresh ideas and unconventional solutions energize you.',
+        strengths: 'Innovation, creative problem-solving, adaptability, idea generation, and challenging the status quo.',
+        hrAdvice: 'Provide creative freedom, innovation time, variety in projects, brainstorming sessions, and minimize repetitive tasks.'
+      },
+      8: {
+        name: 'The Autonomous',
+        definition: 'You value independence and self-management. You work best when given freedom to decide how, when, and where you complete your work.',
+        strengths: 'Self-direction, accountability, time management, independent problem-solving, and initiative.',
+        hrAdvice: 'Offer flexible work arrangements, remote options, outcome-based evaluation, and minimal micromanagement. Trust their process.'
+      },
+      9: {
+        name: 'The Entertainer',
+        definition: 'You bring energy, humor, and positivity to the workplace. You thrive when you can make work enjoyable and create a fun atmosphere for your team.',
+        strengths: 'Morale boosting, positive energy, stress relief, team engagement, and creating enjoyable work environments.',
+        hrAdvice: 'Allow personality expression, support social initiatives, recognize their positive impact on culture, and create space for fun.'
+      }
     },
     errors: {
       notFound: 'Page Not Found',

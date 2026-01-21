@@ -135,7 +135,7 @@ function t(key: string): string {
       });
     });
 
-    const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+    const progress = Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100);
     progressBar.style.width = `${progress}%`;
     currentQuestionSpan.textContent = (currentQuestionIndex + 1).toString();
     progressPercent.textContent = `${progress}%`;
@@ -183,7 +183,7 @@ function t(key: string): string {
 
       if (response.ok) {
         sessionStorage.clear();
-        window.location.href = `/result/${data.userId}`;
+        window.location.href = `/result/${data.accessToken}`;
       } else {
         alert(getT('quiz.submittingError') + data.error);
         nextBtn.disabled = false;

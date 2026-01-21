@@ -1,6 +1,7 @@
 export interface StyleIcon {
   id: number;
   name: string;
+  nameTh: string;
   icon: string;
   color: string;
   emoji: string;
@@ -10,6 +11,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 1,
     name: 'The Security Seeker',
+    nameTh: 'ผู้แสวงหาความปลอดภัย',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8" />
@@ -21,6 +23,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 2,
     name: 'The Social Connector',
+    nameTh: 'ผู้เชื่อมโยงสังคม',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="12" cy="12" r="3" />
       <path d="M12 16v5" />
@@ -41,6 +44,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 3,
     name: 'The Star Performer',
+    nameTh: 'นักแสดงยอดเยี่ยม',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       <circle cx="12" cy="13" r="2" />
@@ -51,6 +55,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 4,
     name: 'The Leader',
+    nameTh: 'ผู้นำ',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M12 3L12 3" />
       <path d="M12 3C9 3 7 5 7 8" />
@@ -68,6 +73,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 5,
     name: 'The Reward Seeker',
+    nameTh: 'ผู้แสวงหารางวัล',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="12" cy="12" r="9" />
       <path d="M15 8h.01" />
@@ -82,6 +88,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 6,
     name: 'The Specialist',
+    nameTh: 'ผู้เชี่ยวชาญ',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <rect x="3" y="3" width="7" height="7" rx="1" />
       <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -95,6 +102,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 7,
     name: 'The Creative Innovator',
+    nameTh: 'นักสร้างสรรค์นวัตกรรม',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M9 18h6" />
       <path d="M10 22h4" />
@@ -108,6 +116,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 8,
     name: 'The Autonomous',
+    nameTh: 'ผู้ทำงานอิสระ',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="12" cy="12" r="3" />
       <path d="M12 2v2" />
@@ -126,6 +135,7 @@ export const styleIcons: StyleIcon[] = [
   {
     id: 9,
     name: 'The Entertainer',
+    nameTh: 'ผู้บันเทิง',
     icon: `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="12" cy="8" r="4" />
       <path d="M12 12v8" />
@@ -159,4 +169,9 @@ export function getStyleIconColor(id: number): string {
 export function getStyleIconEmoji(id: number): string {
   const icon = getStyleIcon(id);
   return icon?.emoji || '❓';
+}
+
+export function getStyleIconName(id: number, locale: 'en' | 'th' = 'en'): string {
+  const icon = getStyleIcon(id);
+  return locale === 'th' ? icon?.nameTh || icon?.name || '' : icon?.name || '';
 }

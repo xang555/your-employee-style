@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import db, { type User, type Result } from '../../lib/db';
-import { getStyleIconSVG, getStyleIconColor } from '../../lib/icons';
+import db, { type User, type Result, getUserByToken } from '../../lib/db';
+import { getStyleIconSVG, getStyleIconColor, getStyleIconName } from '../../lib/icons';
 import { getTranslations, type Locale } from '../../lib/translations';
 
 const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
@@ -23,13 +23,14 @@ if (!id) {
   return Astro.redirect('/');
 }
 
-const userId = parseInt(id);
-if (isNaN(userId)) {
+// Validate token format (should be 32 character hex string)
+const tokenRegex = /^[a-f0-9]{32}$/i;
+if (!tokenRegex.test(id)) {
   return Astro.redirect('/');
 }
 
-const userStmt = db.prepare('SELECT * FROM users WHERE id = ?');
-const userRow = userStmt.get(userId) as User | undefined;
+// Look up user by access token instead of sequential ID
+const userRow = getUserByToken(id);
 
 if (!userRow) {
   return Astro.redirect('/');
@@ -43,24 +44,31 @@ if (!resultRow) {
 }
 
 const result = resultRow;
-const styleIcon = getStyleIconSVG(userRow.result_id);
-const styleIconColor = getStyleIconColor(userRow.result_id);
+const styleId = userRow.result_id;
+const styleIcon = getStyleIconSVG(styleId);
+const styleIconColor = getStyleIconColor(styleId);
+const styleTrans = trans.styles[styleId as keyof typeof trans.styles];
 
-const iAmText = locale === 'th' ? `ฉันเป็น ${result.name}! คุณเป็นแบบไหน?` : `I am a ${result.name}! What are you?`;
+const styleName = getStyleIconName(styleId, locale);
+const styleDefinition = styleTrans?.definition || result.definition;
+const styleStrengths = styleTrans?.strengths || result.strengths;
+const styleHrAdvice = styleTrans?.hrAdvice || result.hr_advice;
+
+const iAmText = locale === 'th' ? `ฉันเป็น ${styleName}! คุณเป็นแบบไหน?` : `I am a ${styleName}! What are you?`;
 const takeAssessmentText = locale === 'th'
-  ? `${result.definition} ทำแบบประเมินเพื่อค้นพบสไตล์การทำงานของคุณ`
-  : `${result.definition} Take the Employee Style Assessment to discover your professional DNA.`;
+  ? `${styleDefinition} ทำแบบประเมินเพื่อค้นพบสไตล์การทำงานของคุณ`
+  : `${styleDefinition} Take the Employee Style Assessment to discover your professional DNA.`;
 const ogTitle = iAmText;
 const ogDescription = takeAssessmentText;
-const ogImage = `/og-result-${userRow.result_id}.jpg`;
+const ogImage = `/og-result-${styleId}.jpg`;
 
 const shareUrl = Astro.url.toString();
 const shareText = locale === 'th'
-  ? `ฉันเป็น ${result.name}! ทำแบบประเมินเพื่อค้นพบสไตล์การทำงานของคุณ`
-  : `I am a ${result.name}! Take the Employee Style Assessment to discover your professional DNA.`;
+  ? `ฉันเป็น ${styleName}! ทำแบบประเมินเพื่อค้นพบสไตล์การทำงานของคุณ`
+  : `I am a ${styleName}! Take the Employee Style Assessment to discover your professional DNA.`;
 ---
 
-<Layout title={`Your Result: ${result.name}`} description={ogDescription} ogImage={ogImage}>
+<Layout title={`Your Result: ${styleName}`} description={ogDescription} ogImage={ogImage}>
   <main class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4">
     <div class="max-w-4xl mx-auto">
       <!-- Success Header -->
@@ -81,7 +89,7 @@ const shareText = locale === 'th'
         <!-- Header with gradient -->
         <div class="bg-gradient-to-r from-primary-600 to-purple-600 p-8 text-white">
           <span class="text-sm font-medium uppercase tracking-wider opacity-90">{t('result.yourStyle')}</span>
-          <h2 class="text-3xl md:text-4xl font-bold mt-2">{result.name}</h2>
+          <h2 class="text-3xl md:text-4xl font-bold mt-2">{styleName}</h2>
         </div>
 
         <!-- Content -->
@@ -94,7 +102,7 @@ const shareText = locale === 'th'
               </svg>
               {t('result.about')}
             </h3>
-            <p class="text-gray-700 leading-relaxed">{result.definition}</p>
+            <p class="text-gray-700 leading-relaxed">{styleDefinition}</p>
           </div>
 
           <!-- Strengths -->
@@ -105,7 +113,7 @@ const shareText = locale === 'th'
               </svg>
               {t('result.strengths')}
             </h3>
-            <p class="text-gray-700 leading-relaxed">{result.strengths}</p>
+            <p class="text-gray-700 leading-relaxed">{styleStrengths}</p>
           </div>
 
           <!-- HR Advice -->
@@ -116,7 +124,7 @@ const shareText = locale === 'th'
               </svg>
               {t('result.hrAdvice')}
             </h3>
-            <p class="text-gray-700 leading-relaxed">{result.hr_advice}</p>
+            <p class="text-gray-700 leading-relaxed">{styleHrAdvice}</p>
           </div>
         </div>
       </div>

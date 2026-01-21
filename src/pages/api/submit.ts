@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import db, { type User, type Result } from '../../lib/db';
+import db, { type User, type Result, generateAccessToken } from '../../lib/db';
 import { quizSubmissionSchema } from '../../lib/validation';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -29,15 +29,19 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
+    // Generate a secure access token
+    const accessToken = generateAccessToken();
+
     const insertResult = db.prepare(`
-      INSERT INTO users (name, email, result_id)
-      VALUES (?, ?, ?)
+      INSERT INTO users (name, email, result_id, access_token)
+      VALUES (?, ?, ?, ?)
     `);
 
     const result = insertResult.run(
       validatedData.name,
       validatedData.email,
-      winnerCategoryId
+      winnerCategoryId,
+      accessToken
     );
 
     const userId = result.lastInsertRowid as number;
@@ -47,6 +51,7 @@ export const POST: APIRoute = async ({ request }) => {
         success: true,
         userId: userId,
         resultId: winnerCategoryId,
+        accessToken: accessToken,
       }),
       {
         status: 200,

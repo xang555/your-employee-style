@@ -42,7 +42,7 @@ function t(key: string): string {
       </button>
     </div>
 
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden" data-translations={JSON.stringify(trans)}>
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-50 border-b border-gray-200">
@@ -100,17 +100,25 @@ function t(key: string): string {
   </div>
 </AdminLayout>
 
-<script define:vars={{ t: trans, locale }}>
+<script>
   let reports: any[] = [];
+
+  // Parse translations from data attribute
+  const translations = JSON.parse(document.querySelector('[data-translations]')?.getAttribute('data-translations') || '{}');
 
   function getT(key) {
     const keys = key.split('.');
-    let value = t;
+    let value = translations;
     for (const k of keys) {
       value = value[k];
       if (value === undefined) return key;
     }
     return value;
+  }
+
+  function getStyleName(resultId: number): string {
+    const styleTrans = translations.styles[resultId];
+    return styleTrans?.name || '';
   }
 
   async function loadReports() {
@@ -198,7 +206,7 @@ function t(key: string): string {
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
           <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-            ${report.result_name}
+            ${getStyleName(report.result_id)}
           </span>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
