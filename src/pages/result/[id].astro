@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import db, { type User, type Result, getUserByToken } from '../../lib/db';
+import db, { type User, type Result, getUserByToken, generateAccessToken, updateUserPosterImage } from '../../lib/db';
+import { createCanvas, loadImage } from 'canvas';
+import { promises as fs } from 'fs';
+import path from 'path';
 import { getStyleIconSVG, getStyleIconColor, getStyleIconName } from '../../lib/icons';
 import { getTranslations, type Locale } from '../../lib/translations';
 
@@ -56,11 +59,123 @@ const styleHrAdvice = styleTrans?.hrAdvice || result.hr_advice;
 
 const iAmText = locale === 'th' ? `ฉันเป็น ${styleName}! คุณเป็นแบบไหน?` : `I am a ${styleName}! What are you?`;
 const takeAssessmentText = locale === 'th'
-  ? `${styleDefinition} ทำแบบประเมินเพื่อค้นพบสไตล์การทำงานของคุณ`
+  ? `${styleDefinition} ทำแบประเมินเพื่อค้นพบสไตล์การทำงานของคุณ`
   : `${styleDefinition} Take the Employee Style Assessment to discover your professional DNA.`;
 const ogTitle = iAmText;
 const ogDescription = takeAssessmentText;
-const ogImage = `/og-result-${styleId}.jpg`;
+
+// Generate poster image if it doesn't exist
+let posterImageUrl = userRow.poster_image;
+const POSTERS_DIR = path.join(process.cwd(), 'public', 'posters');
+
+if (!posterImageUrl) {
+  // Ensure directory exists
+  try {
+    await fs.mkdir(POSTERS_DIR, { recursive: true });
+  } catch (err) {
+    // Directory exists or error
+  }
+
+  const POSTER_WIDTH = 1200;
+  const POSTER_HEIGHT = 630;
+  const filename = `poster-${id}.png`;
+  const filePath = path.join(POSTERS_DIR, filename);
+
+  // Create canvas
+  const canvas = createCanvas(POSTER_WIDTH, POSTER_HEIGHT);
+  const ctx = canvas.getContext('2d');
+
+  // Color map
+  const colorMap: Record<number, string> = {
+    1: '#3B82F6', 2: '#22C55E', 3: '#EAB308', 4: '#A855F7',
+    5: '#10B981', 6: '#F97316', 7: '#EC4899', 8: '#06B6D4', 9: '#F43F5E'
+  };
+  const primaryColor = colorMap[styleId] || '#3B82F6';
+
+  // Draw gradient background
+  const gradient = ctx.createLinearGradient(0, 0, POSTER_WIDTH, POSTER_HEIGHT);
+  gradient.addColorStop(0, primaryColor);
+  gradient.addColorStop(1, '#8B5CF6');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT);
+
+  // Add dot pattern
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  for (let x = 0; x < POSTER_WIDTH; x += 30) {
+    for (let y = 0; y < POSTER_HEIGHT; y += 30) {
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Draw white card
+  const cardPadding = 60;
+  const cardX = cardPadding;
+  const cardY = cardPadding;
+  const cardWidth = POSTER_WIDTH - (cardPadding * 2);
+  const cardHeight = POSTER_HEIGHT - (cardPadding * 2);
+  const cardRadius = 20;
+
+  ctx.fillStyle = 'white';
+  ctx.beginPath();
+  ctx.roundRect(cardX, cardY, cardWidth, cardHeight, cardRadius);
+  ctx.fill();
+
+  // Draw icon circle
+  const iconCircleSize = 120;
+  const iconX = (POSTER_WIDTH - iconCircleSize) / 2;
+  const iconY = 120;
+
+  ctx.fillStyle = primaryColor;
+  ctx.beginPath();
+  ctx.arc(POSTER_WIDTH / 2, iconY + (iconCircleSize / 2), iconCircleSize / 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw simple icon (circle for now)
+  ctx.fillStyle = 'white';
+  ctx.beginPath();
+  ctx.arc(POSTER_WIDTH / 2, iconY + (iconCircleSize / 2), 40, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Style name
+  ctx.fillStyle = '#1F2937';
+  ctx.font = 'bold 56px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(styleName, POSTER_WIDTH / 2, 320);
+
+  // Subtitle
+  const subtitle = locale === 'th' ? 'ค้นพบสไตล์การทำงานของคุณ' : 'Discover Your Work Style';
+  ctx.fillStyle = '#6B7280';
+  ctx.font = '32px sans-serif';
+  ctx.fillText(subtitle, POSTER_WIDTH / 2, 380);
+
+  // CTA text
+  const ctaText = locale === 'th'
+    ? 'ทำแบบประเมินเพื่อค้นพบสไตล์ของคุณ'
+    : 'Take the assessment to discover your style';
+  ctx.fillStyle = '#9CA3AF';
+  ctx.font = '24px sans-serif';
+  ctx.fillText(ctaText, POSTER_WIDTH / 2, 430);
+
+  // Branding
+  const brandText = locale === 'th' ? 'Your Employee Style' : 'Your Employee Style';
+  ctx.fillStyle = primaryColor;
+  ctx.font = 'bold 28px sans-serif';
+  ctx.fillText(brandText, POSTER_WIDTH / 2, 530);
+
+  // Save canvas
+  const buffer = canvas.toBuffer('image/png');
+  await fs.writeFile(filePath, buffer);
+
+  posterImageUrl = `/posters/${filename}`;
+
+  // Update database
+  updateUserPosterImage(userRow.id, posterImageUrl);
+}
+
+// Construct absolute URL for Open Graph image (social media crawlers need full URLs)
+const ogImage = new URL(posterImageUrl, Astro.url).href;
 
 const shareUrl = Astro.url.toString();
 const shareText = locale === 'th'
@@ -136,22 +251,22 @@ const shareText = locale === 'th'
           {t('result.shareSubtitle')}
         </p>
         <div class="flex flex-wrap justify-center gap-4">
-          <!-- Twitter -->
+          <!-- X (Twitter) -->
           <a
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center px-6 py-3 bg-blue-400 text-white font-semibold rounded-full hover:bg-blue-500 transition-all hover:scale-105 shadow-md"
+            class="inline-flex items-center px-6 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all hover:scale-105 shadow-md"
           >
             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
-            {t('result.shareTwitter')}
+            {t('result.shareX')}
           </a>
 
           <!-- Facebook -->
           <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`}
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
             target="_blank"
             rel="noopener noreferrer"
             class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-all hover:scale-105 shadow-md"
@@ -162,17 +277,30 @@ const shareText = locale === 'th'
             {t('result.shareFacebook')}
           </a>
 
-          <!-- LinkedIn -->
+          <!-- WhatsApp -->
           <a
-            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+            href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`}
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center px-6 py-3 bg-blue-700 text-white font-semibold rounded-full hover:bg-blue-800 transition-all hover:scale-105 shadow-md"
+            class="inline-flex items-center px-6 py-3 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition-all hover:scale-105 shadow-md"
           >
             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01C17.18 3.03 14.69 2 12.04 2z"/>
             </svg>
-            {t('result.shareLinkedIn')}
+            {t('result.shareWhatsApp')}
+          </a>
+
+          <!-- Telegram -->
+          <a
+            href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center px-6 py-3 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition-all hover:scale-105 shadow-md"
+          >
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+            {t('result.shareTelegram')}
           </a>
         </div>
       </div>
@@ -221,6 +349,7 @@ const shareText = locale === 'th'
     return value;
   }
 
+  // Copy link functionality
   if (copyLinkBtn) {
     copyLinkBtn.addEventListener('click', async () => {
       const shareUrl = window.location.href;

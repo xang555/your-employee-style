@@ -72,9 +72,10 @@ export interface Translations {
     hrAdvice: string;
     share: string;
     shareSubtitle: string;
-    shareTwitter: string;
+    shareX: string;
     shareFacebook: string;
-    shareLinkedIn: string;
+    shareWhatsApp: string;
+    shareTelegram: string;
     knowSomeone: string;
     shareWithTeam: string;
     retakeAssessment: string;
@@ -153,6 +154,8 @@ export interface Translations {
     loadingReports: string;
     failedLoadReports: string;
     style: string;
+    exportCSV: string;
+    exportCSVSuccess: string;
   };
   errors: {
     notFound: string;
@@ -237,9 +240,10 @@ export const translations: Record<Locale, Translations> = {
       hrAdvice: 'คำแนะนำสำหรับ HR/ผู้บริหาร',
       share: 'แชร์ผลลัพธ์',
       shareSubtitle: 'ปล่อยให้โลกรู้ว่าคุณเป็นคนแบบไหน!',
-      shareTwitter: 'แชร์บน X',
+      shareX: 'แชร์บน X',
       shareFacebook: 'แชร์บน Facebook',
-      shareLinkedIn: 'แชร์บน LinkedIn',
+      shareWhatsApp: 'แชร์บน WhatsApp',
+      shareTelegram: 'แชร์บน Telegram',
       knowSomeone: 'รู้จักใครที่ควรทำแบบประเมินนี้?',
       shareWithTeam: 'แชร์แบบประเมินกับทีมและเพื่อนร่วมงานของคุณ!',
       retakeAssessment: 'ทำแบบประเมินอีกครั้ง',
@@ -309,7 +313,9 @@ export const translations: Record<Locale, Translations> = {
       networkError: 'ข้อผิดพลาดเครือข่าย โปรดลองอีกครั้ง',
       loadingReports: 'กำลังโหลดรายงาน...',
       failedLoadReports: 'โหลดรายงานไม่สำเร็จ โปรดลองอีกครั้ง',
-      style: 'สไตล์'
+      style: 'สไตล์',
+      exportCSV: 'ส่งออก CSV',
+      exportCSVSuccess: 'ส่งออกข้อมูลสำเร็จแล้ว'
     },
     styles: {
       1: {
@@ -448,9 +454,10 @@ export const translations: Record<Locale, Translations> = {
       hrAdvice: 'HR & Management Advice',
       share: 'Share Your Result',
       shareSubtitle: 'Let world know about your professional style!',
-      shareTwitter: 'Share on X',
+      shareX: 'Share on X',
       shareFacebook: 'Share on Facebook',
-      shareLinkedIn: 'Use "Share on LinkedIn"',
+      shareWhatsApp: 'Share on WhatsApp',
+      shareTelegram: 'Share on Telegram',
       knowSomeone: 'Know someone who should take this?',
       shareWithTeam: 'Share this assessment with your team, friends, or colleagues!',
       retakeAssessment: 'Retake Assessment',
@@ -520,7 +527,9 @@ export const translations: Record<Locale, Translations> = {
       networkError: 'Network error. Please try again.',
       loadingReports: 'Loading reports...',
       failedLoadReports: 'Failed to load reports. Please try again.',
-      style: 'Style'
+      style: 'Style',
+      exportCSV: 'Export CSV',
+      exportCSVSuccess: 'Data exported successfully'
     },
     styles: {
       1: {

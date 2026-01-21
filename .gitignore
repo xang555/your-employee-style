@@ -25,6 +25,9 @@ data/*.db
 data/*.db-shm
 data/*.db-wal
 
+# Generated poster images
+public/posters/*.png
+
 # Logs
 logs/
 *.log

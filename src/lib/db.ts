@@ -21,6 +21,7 @@ db.exec(`
     email TEXT NOT NULL,
     result_id INTEGER NOT NULL,
     access_token TEXT UNIQUE NOT NULL,
+    poster_image TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (result_id) REFERENCES results(id)
   );
@@ -29,6 +30,13 @@ db.exec(`
 // Add access_token column if it doesn't exist (for existing databases)
 try {
   db.prepare(`ALTER TABLE users ADD COLUMN access_token TEXT UNIQUE`).run();
+} catch (e) {
+  // Column already exists, ignore error
+}
+
+// Add poster_image column if it doesn't exist (for existing databases)
+try {
+  db.prepare(`ALTER TABLE users ADD COLUMN poster_image TEXT`).run();
 } catch (e) {
   // Column already exists, ignore error
 }
@@ -145,6 +153,7 @@ export type User = {
   email: string;
   result_id: number;
   access_token: string;
+  poster_image: string | null;
   created_at: Date;
 };
 
@@ -197,4 +206,11 @@ export function generateAccessToken(): string {
  */
 export function getUserByToken(token: string): User | undefined {
   return db.prepare('SELECT * FROM users WHERE access_token = ?').get(token) as User | undefined;
+}
+
+/**
+ * Update user's poster image path
+ */
+export function updateUserPosterImage(userId: number, imagePath: string): void {
+  db.prepare('UPDATE users SET poster_image = ? WHERE id = ?').run(imagePath, userId);
 }

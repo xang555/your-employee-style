@@ -20,6 +20,9 @@ function t(key: string): string {
   }
   return value as string;
 }
+
+const url = new URL(Astro.url);
+const currentPath = url.pathname;
 ---
 
 <!doctype html>
@@ -129,25 +132,87 @@ function t(key: string): string {
         </nav>
 
         <div class="p-4 border-t border-gray-800">
-          <button
-            id="logout-btn"
-            class="w-full flex items-center justify-center px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-white font-medium"
-          >
-            <svg
-              class="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div class="relative">
+            <button
+              id="menu-dropdown-btn"
+              class="w-full flex items-center justify-center px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+              title="Settings"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            {t('admin.logout')}
-          </button>
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </button>
+
+            <div
+              id="dropdown-menu"
+              class="hidden absolute bottom-full left-0 right-0 mb-2 bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden min-w-[200px]"
+            >
+              <div class="py-2">
+                <a
+                  href={`${currentPath}?lang=th`}
+                  class={`flex items-center px-4 py-2.5 hover:bg-gray-700 transition-colors ${
+                    locale === 'th' ? 'bg-gray-700 text-primary-400' : 'text-gray-300'
+                  }`}
+                >
+                  <span class="flex-1">ไทย</span>
+                  {locale === 'th' && (
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  )}
+                </a>
+                <a
+                  href={`${currentPath}?lang=en`}
+                  class={`flex items-center px-4 py-2.5 hover:bg-gray-700 transition-colors ${
+                    locale === 'en' ? 'bg-gray-700 text-primary-400' : 'text-gray-300'
+                  }`}
+                >
+                  <span class="flex-1">English</span>
+                  {locale === 'en' && (
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  )}
+                </a>
+                <div class="border-t border-gray-700 my-2"></div>
+                <button
+                  id="logout-btn"
+                  class="w-full flex items-center px-4 py-2.5 text-red-400 hover:bg-red-900/20 transition-colors"
+                >
+                  <svg
+                    class="w-5 h-5 mr-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                  {t('admin.logout')}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -179,11 +244,26 @@ function t(key: string): string {
 </style>
 
 <script>
+  const dropdownBtn = document.getElementById('menu-dropdown-btn');
+  const dropdownMenu = document.getElementById('dropdown-menu');
   const logoutBtn = document.getElementById('logout-btn');
-  
+
+  // Toggle dropdown
+  dropdownBtn?.addEventListener('click', () => {
+    dropdownMenu?.classList.toggle('hidden');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!dropdownBtn?.contains(e.target) && !dropdownMenu?.contains(e.target)) {
+      dropdownMenu?.classList.add('hidden');
+    }
+  });
+
+  // Logout functionality
   logoutBtn?.addEventListener('click', async () => {
     const token = localStorage.getItem('adminToken');
-    
+
     try {
       await fetch('/admin/api/logout', {
         method: 'POST',
@@ -195,7 +275,7 @@ function t(key: string): string {
     } catch (error) {
       console.error('Logout error:', error);
     }
-    
+
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUsername');
     document.cookie = 'adminToken=; path=/; max-age=0';

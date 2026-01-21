@@ -21,25 +21,46 @@ function t(key: string): string {
   <div class="p-8">
     <div class="flex items-center justify-between mb-8">
       <h1 class="text-3xl font-bold text-gray-900">{t('admin.assessmentReports')}</h1>
-      <button
-        id="refresh-btn"
-        class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
-      >
-        <svg
-          class="w-5 h-5 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      <div class="flex items-center gap-3">
+        <button
+          id="export-csv-btn"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
-        {t('common.refresh')}
-      </button>
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          {t('admin.exportCSV')}
+        </button>
+        <button
+          id="refresh-btn"
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+        >
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          {t('common.refresh')}
+        </button>
+      </div>
     </div>
 
     <div class="bg-white rounded-xl shadow-md overflow-hidden" data-translations={JSON.stringify(trans)}>
@@ -234,6 +255,48 @@ function t(key: string): string {
   }
 
   document.getElementById('refresh-btn')?.addEventListener('click', loadReports);
+
+  // Export CSV functionality
+  function exportToCSV() {
+    if (reports.length === 0) {
+      alert(getT('admin.noAssessments'));
+      return;
+    }
+
+    // Get headers
+    const headers = [getT('admin.tableName'), getT('admin.tableEmail'), getT('admin.tableResult'), getT('admin.tableDate')];
+
+    // Build CSV content
+    let csvContent = headers.join(',') + '\n';
+
+    reports.forEach((report: any) => {
+      const row = [
+        `"${report.name}"`,
+        `"${report.email}"`,
+        `"${getStyleName(report.result_id)}"`,
+        `"${new Date(report.created_at).toLocaleString()}"`
+      ];
+      csvContent += row.join(',') + '\n';
+    });
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `employee-style-reports-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Show success message
+    alert(getT('admin.exportCSVSuccess'));
+  }
+
+  document.getElementById('export-csv-btn')?.addEventListener('click', exportToCSV);
 
   loadReports();
 </script>
