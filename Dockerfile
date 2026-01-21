@@ -67,14 +67,15 @@ RUN yarn install --frozen-lockfile --production && \
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
-# Copy necessary runtime files
-COPY --chown=nodejs:nodejs db ./db
-COPY --chown=nodejs:nodejs data ./data
-COPY --chown=nodejs:nodejs migrations ./migrations
+# Copy necessary runtime files from builder stage
+# These directories exist in builder stage from "COPY . ." command
+COPY --from=builder --chown=nodejs:nodejs /app/db ./db
+COPY --from=builder --chown=nodejs:nodejs /app/data ./data
+COPY --from=builder --chown=nodejs:nodejs /app/migrations ./migrations
 
 # Create directories for runtime data with proper permissions
-RUN mkdir -p /app/data /app/db && \
-    chown -R nodejs:nodejs /app/data /app/db
+RUN mkdir -p /app/data /app/db /app/migrations && \
+    chown -R nodejs:nodejs /app/data /app/db /app/migrations
 
 # Switch to non-root user
 USER nodejs
