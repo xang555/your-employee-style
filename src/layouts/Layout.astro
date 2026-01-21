@@ -7,7 +7,9 @@ interface Props {
 
 const { 
   title, 
-  description = "Discover your professional DNA with our Employee Style Assessment. Understand your working style, strengths, and motivations.",
+  description = Astro.locals.locale === 'th' 
+    ? "ทำแบบประเมินเพื่อค้นพบสไตล์การทำงานจุดแข็ง และแรงบันดาลใจของคุณ"
+    : "Discover your professional DNA with our Employee Style Assessment. Understand your working style, strengths, and motivations.",
   ogImage = "/og-default.jpg"
 } = Astro.props;
 ---

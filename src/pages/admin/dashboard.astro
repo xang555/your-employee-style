@@ -1,18 +1,31 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getTranslations, type Locale } from '../../lib/translations';
 
 const username = Astro.locals.admin?.username || 'Admin';
+const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
+const trans = getTranslations(locale);
+
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = trans;
+  for (const k of keys) {
+    value = value[k];
+    if (value === undefined) return key;
+  }
+  return value as string;
+}
 ---
 
-<AdminLayout title="Dashboard" activeTab="dashboard" username={username}>
+<AdminLayout title={t('admin.dashboard')} activeTab="dashboard" username={username}>
   <div class="p-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
-    
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">{t('admin.dashboard')}</h1>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 font-medium">Total Assessments</p>
+            <p class="text-sm text-gray-600 font-medium">{t('admin.totalAssessments')}</p>
             <p class="text-3xl font-bold text-gray-900 mt-2" id="total-assessments">-</p>
           </div>
           <div class="bg-primary-100 p-3 rounded-full">
@@ -32,11 +45,11 @@ const username = Astro.locals.admin?.username || 'Admin';
           </div>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 font-medium">Today's Assessments</p>
+            <p class="text-sm text-gray-600 font-medium">{t('admin.todayAssessments')}</p>
             <p class="text-3xl font-bold text-gray-900 mt-2" id="today-assessments">-</p>
           </div>
           <div class="bg-green-100 p-3 rounded-full">
@@ -56,11 +69,11 @@ const username = Astro.locals.admin?.username || 'Admin';
           </div>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 font-medium">Unique Styles</p>
+            <p class="text-sm text-gray-600 font-medium">{t('admin.uniqueStyles')}</p>
             <p class="text-3xl font-bold text-gray-900 mt-2" id="unique-styles">9</p>
           </div>
           <div class="bg-purple-100 p-3 rounded-full">
@@ -81,9 +94,9 @@ const username = Astro.locals.admin?.username || 'Admin';
         </div>
       </div>
     </div>
-    
+
     <div class="bg-white rounded-xl shadow-md p-6">
-      <h2 class="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-4">{t('admin.quickActions')}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <a
           href="/admin/reports"
@@ -105,11 +118,11 @@ const username = Astro.locals.admin?.username || 'Admin';
             </svg>
           </div>
           <div>
-            <h3 class="font-semibold text-gray-900">View Reports</h3>
-            <p class="text-sm text-gray-600">See all user assessment results</p>
+            <h3 class="font-semibold text-gray-900">{t('admin.viewReports')}</h3>
+            <p class="text-sm text-gray-600">{t('admin.viewReportsDesc')}</p>
           </div>
         </a>
-        
+
         <a
           href="/admin/settings"
           class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer"
@@ -130,8 +143,8 @@ const username = Astro.locals.admin?.username || 'Admin';
             </svg>
           </div>
           <div>
-            <h3 class="font-semibold text-gray-900">Change Password</h3>
-            <p class="text-sm text-gray-600">Update your admin password</p>
+            <h3 class="font-semibold text-gray-900">{t('admin.changePassword')}</h3>
+            <p class="text-sm text-gray-600">{t('admin.changePasswordDesc')}</p>
           </div>
         </a>
       </div>

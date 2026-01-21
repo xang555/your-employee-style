@@ -1,16 +1,30 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getTranslations, type Locale } from '../lib/translations';
+
+const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
+const trans = getTranslations(locale);
+
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = trans;
+  for (const k of keys) {
+    value = value[k];
+    if (value === undefined) return key;
+  }
+  return value as string;
+}
 ---
 
-<Layout title="Get Started - Employee Style Assessment">
+<Layout title={`${t('onboarding.title')} - ${locale === 'th' ? 'แบบประเมินสไตล์การทำงาน' : 'Employee Style Assessment'}`}>
   <main class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 py-12">
     <div class="max-w-md w-full">
       <!-- Card -->
       <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
         <!-- Header -->
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Let's Get Started</h1>
-          <p class="text-gray-600">Enter your details to begin the assessment</p>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{t('onboarding.title')}</h1>
+          <p class="text-gray-600">{t('onboarding.subtitle')}</p>
         </div>
 
         <!-- Form -->
@@ -18,7 +32,7 @@ import Layout from '../layouts/Layout.astro';
           <!-- Name Field -->
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
+              {t('onboarding.fullName')}
             </label>
             <input
               type="text"
@@ -26,7 +40,7 @@ import Layout from '../layouts/Layout.astro';
               name="name"
               required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="John Doe"
+              placeholder={t('onboarding.fullNamePlaceholder')}
             />
             <p id="name-error" class="hidden text-sm text-red-600 mt-1"></p>
           </div>
@@ -34,7 +48,7 @@ import Layout from '../layouts/Layout.astro';
           <!-- Email Field -->
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
+              {t('onboarding.emailAddress')}
             </label>
             <input
               type="email"
@@ -42,7 +56,7 @@ import Layout from '../layouts/Layout.astro';
               name="email"
               required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="john@example.com"
+              placeholder={t('onboarding.emailPlaceholder')}
             />
             <p id="email-error" class="hidden text-sm text-red-600 mt-1"></p>
           </div>
@@ -52,20 +66,20 @@ import Layout from '../layouts/Layout.astro';
             type="submit"
             class="w-full bg-primary-600 text-white py-4 rounded-lg font-semibold hover:bg-primary-700 transform hover:scale-[1.02] transition-all shadow-md hover:shadow-lg"
           >
-            Continue to Assessment
+            {t('onboarding.continueButton')}
           </button>
         </form>
 
         <!-- Privacy Note -->
         <p class="text-xs text-gray-500 text-center mt-6">
-          Your information is secure and will only be used for this assessment.
+          {t('onboarding.privacyNote')}
         </p>
       </div>
 
       <!-- Back Link -->
       <div class="text-center mt-6">
         <a href="/" class="text-sm text-gray-600 hover:text-primary-600 transition-colors">
-          ← Back to Home
+          {t('onboarding.backToHome')}
         </a>
       </div>
     </div>
@@ -102,16 +116,16 @@ import Layout from '../layouts/Layout.astro';
 
     try {
       userSchema.parse(formData);
-      
+
       // Store in session storage
       sessionStorage.setItem('userName', formData.name);
       sessionStorage.setItem('userEmail', formData.email);
-      
+
       // Navigate to quiz
       window.location.href = '/quiz';
     } catch (error) {
       if (error instanceof z.ZodError) {
-        error.errors.forEach((err) => {
+        error.issues.forEach((err) => {
           if (err.path[0] === 'name') {
             nameError.textContent = err.message;
             nameError.classList.remove('hidden');

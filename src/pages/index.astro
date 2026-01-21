@@ -1,36 +1,65 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import { getTranslations, type Locale } from '../lib/translations';
+
+const url = new URL(Astro.url);
+const searchParams = url.searchParams;
+const cookieLocale = Astro.cookies.get('locale')?.value as Locale || 'th';
+const urlLocale = searchParams.get('lang') as Locale;
+
+let locale = urlLocale || cookieLocale;
+const supportedLocales: Locale[] = ['th', 'en'];
+if (!supportedLocales.includes(locale)) {
+  locale = 'th';
+}
+
+Astro.cookies.set('locale', locale, {
+  path: '/',
+  maxAge: 60 * 60 * 24 * 365,
+});
+
+const trans = getTranslations(locale);
+
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = trans;
+  for (const k of keys) {
+    value = value[k];
+    if (value === undefined) return key;
+  }
+  return value as string;
+}
 ---
 
-<Layout title="Discover Your Professional DNA">
+<Layout title={t('landing.heroTitle')}>
   <main class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
     <!-- Hero Section -->
-    <div class="container mx-auto px-4 py-16 md:py-24">
+    <div class="container mx-auto px-4 py-16 md:py-24 relative">
+      <LanguageSwitcher />
+      
       <div class="max-w-4xl mx-auto text-center">
         <!-- Badge -->
         <div class="inline-flex items-center px-4 py-2 bg-white rounded-full shadow-md mb-8 animate-fade-in">
-          <span class="text-sm font-semibold text-primary-600">✨ Professional Assessment</span>
+          <span class="text-sm font-semibold text-primary-600">{t('common.professionalAssessment')}</span>
         </div>
 
         <!-- Main Heading -->
         <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight animate-slide-up">
-          Discover Your
-          <span class="bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
-            Professional DNA
-          </span>
+          {t('landing.heroTitle')}
         </h1>
 
         <!-- Subheading -->
         <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto animate-slide-up animation-delay-200">
-          Unlock insights into your working style, strengths, and what truly motivates you in your career.
+          {t('landing.heroSubtitle')}
         </p>
 
         <!-- CTA Button -->
-        <a 
-          href="/onboarding" 
+        <a
+          href="/onboarding"
           class="inline-flex items-center px-8 py-4 bg-primary-600 text-white text-lg font-semibold rounded-full shadow-lg hover:bg-primary-700 hover:shadow-xl transform hover:scale-105 transition-all duration-200 animate-slide-up animation-delay-400"
         >
-          Start Assessment
+          {t('landing.heroCTA')}
           <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
@@ -40,15 +69,15 @@ import Layout from '../layouts/Layout.astro';
         <div class="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
           <div class="text-center">
             <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">10</div>
-            <div class="text-sm text-gray-600">Questions</div>
+            <div class="text-sm text-gray-600">{t('common.questions')}</div>
           </div>
           <div class="text-center">
             <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">9</div>
-            <div class="text-sm text-gray-600">Style Types</div>
+            <div class="text-sm text-gray-600">{t('common.styleTypes')}</div>
           </div>
           <div class="text-center">
             <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">3</div>
-            <div class="text-sm text-gray-600">Minutes</div>
+            <div class="text-sm text-gray-600">{t('common.minutes')}</div>
           </div>
         </div>
       </div>
@@ -61,8 +90,8 @@ import Layout from '../layouts/Layout.astro';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">Deep Insights</h3>
-          <p class="text-gray-600">Understand your core motivations and working preferences</p>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">{t('common.deepInsights')}</h3>
+          <p class="text-gray-600">{t('common.deepInsightsDesc')}</p>
         </div>
 
         <div class="bg-white rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow">
@@ -71,8 +100,8 @@ import Layout from '../layouts/Layout.astro';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">Quick & Easy</h3>
-          <p class="text-gray-600">Complete the assessment in just 3 minutes</p>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">{t('common.quickEasy')}</h3>
+          <p class="text-gray-600">{t('common.quickEasyDesc')}</p>
         </div>
 
         <div class="bg-white rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow">
@@ -81,8 +110,8 @@ import Layout from '../layouts/Layout.astro';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">Actionable Results</h3>
-          <p class="text-gray-600">Receive personalized strengths and HR recommendations</p>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">{t('common.actionableResults')}</h3>
+          <p class="text-gray-600">{t('common.actionableResultsDesc')}</p>
         </div>
       </div>
     </div>

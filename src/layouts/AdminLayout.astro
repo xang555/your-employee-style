@@ -1,4 +1,6 @@
 ---
+import { getTranslations, type Locale } from '../lib/translations';
+
 interface Props {
   title: string;
   activeTab: 'dashboard' | 'reports' | 'settings';
@@ -6,28 +8,40 @@ interface Props {
 }
 
 const { title, activeTab, username } = Astro.props;
+const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
+const trans = getTranslations(locale);
+
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = trans;
+  for (const k of keys) {
+    value = value[k];
+    if (value === undefined) return key;
+  }
+  return value as string;
+}
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Admin Dashboard" />
+    <meta name="description" content={t('admin.adminDashboard')} />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title} - Admin Dashboard</title>
+    <title>{title} - {t('admin.adminDashboard')}</title>
   </head>
   <body class="bg-gray-100 min-h-screen">
     <div class="flex h-screen">
       <aside class="w-64 bg-gray-900 text-white flex flex-col">
         <div class="p-6 border-b border-gray-800">
-          <h1 class="text-xl font-bold">Admin Dashboard</h1>
+          <h1 class="text-xl font-bold">{t('admin.adminDashboard')}</h1>
           {username && (
-            <p class="text-sm text-gray-400 mt-1">Logged in as: {username}</p>
+            <p class="text-sm text-gray-400 mt-1">{t('admin.loggedInAs')}{username}</p>
           )}
         </div>
-        
+
         <nav class="flex-1 p-4">
           <ul class="space-y-2">
             <li>
@@ -52,7 +66,7 @@ const { title, activeTab, username } = Astro.props;
                     d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                   />
                 </svg>
-                Dashboard
+                {t('admin.dashboard')}
               </a>
             </li>
             <li>
@@ -77,7 +91,7 @@ const { title, activeTab, username } = Astro.props;
                     d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                Reports
+                {t('admin.reports')}
               </a>
             </li>
             <li>
@@ -99,7 +113,7 @@ const { title, activeTab, username } = Astro.props;
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
                   />
                   <path
                     stroke-linecap="round"
@@ -108,12 +122,12 @@ const { title, activeTab, username } = Astro.props;
                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                Settings
+                {t('admin.settings')}
               </a>
             </li>
           </ul>
         </nav>
-        
+
         <div class="p-4 border-t border-gray-800">
           <button
             id="logout-btn"
@@ -132,11 +146,11 @@ const { title, activeTab, username } = Astro.props;
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
               />
             </svg>
-            Logout
+            {t('admin.logout')}
           </button>
         </div>
       </aside>
-      
+
       <main class="flex-1 overflow-auto">
         <slot />
       </main>

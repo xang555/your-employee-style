@@ -1,21 +1,34 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getTranslations, type Locale } from '../../lib/translations';
 
 const username = Astro.locals.admin?.username || 'Admin';
+const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
+const trans = getTranslations(locale);
+
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = trans;
+  for (const k of keys) {
+    value = value[k];
+    if (value === undefined) return key;
+  }
+  return value as string;
+}
 ---
 
-<AdminLayout title="Settings" activeTab="settings" username={username}>
+<AdminLayout title={t('admin.settings')} activeTab="settings" username={username}>
   <div class="p-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">Settings</h1>
-    
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">{t('admin.settings')}</h1>
+
     <div class="max-w-2xl">
       <div class="bg-white rounded-xl shadow-md p-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">Change Password</h2>
-        
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">{t('admin.changePassword')}</h2>
+
         <form id="password-form" class="space-y-6">
           <div>
             <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">
-              Current Password
+              {t('admin.currentPassword')}
             </label>
             <input
               type="password"
@@ -23,13 +36,13 @@ const username = Astro.locals.admin?.username || 'Admin';
               name="currentPassword"
               required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="Enter current password"
+              placeholder={t('admin.enterCurrentPassword')}
             />
           </div>
-          
+
           <div>
             <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">
-              New Password
+              {t('admin.newPassword')}
             </label>
             <input
               type="password"
@@ -37,15 +50,15 @@ const username = Astro.locals.admin?.username || 'Admin';
               name="newPassword"
               required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="Enter new password"
+              placeholder={t('admin.enterNewPassword')}
               minlength="8"
             />
-            <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+            <p class="text-xs text-gray-500 mt-1">{t('admin.newPasswordMin')}</p>
           </div>
-          
+
           <div>
             <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
-              Confirm New Password
+              {t('admin.confirmPassword')}
             </label>
             <input
               type="password"
@@ -53,24 +66,24 @@ const username = Astro.locals.admin?.username || 'Admin';
               name="confirmPassword"
               required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="Confirm new password"
+              placeholder={t('admin.confirmNewPassword')}
               minlength="8"
             />
           </div>
-          
+
           <div id="error-message" class="hidden text-sm text-red-600"></div>
           <div id="success-message" class="hidden text-sm text-green-600"></div>
-          
+
           <button
             type="submit"
             id="submit-btn"
             class="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transform hover:scale-[1.02] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Update Password
+            {t('admin.updatePassword')}
           </button>
         </form>
       </div>
-      
+
       <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -88,14 +101,14 @@ const username = Astro.locals.admin?.username || 'Admin';
           </div>
           <div class="ml-3">
             <h3 class="text-sm font-medium text-yellow-800">
-              Security Tips
+              {t('admin.securityTips')}
             </h3>
             <div class="mt-2 text-sm text-yellow-700">
               <ul class="list-disc list-inside space-y-1">
-                <li>Use a strong, unique password</li>
-                <li>Avoid using common words or personal information</li>
-                <li>Consider using a password manager</li>
-                <li>Change your password regularly</li>
+                <li>{t('admin.tip1')}</li>
+                <li>{t('admin.tip2')}</li>
+                <li>{t('admin.tip3')}</li>
+                <li>{t('admin.tip4')}</li>
               </ul>
             </div>
           </div>
@@ -105,43 +118,53 @@ const username = Astro.locals.admin?.username || 'Admin';
   </div>
 </AdminLayout>
 
-<script>
+<script define:vars={{ t: trans, locale }}>
   const form = document.getElementById('password-form') as HTMLFormElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
   const errorMessage = document.getElementById('error-message') as HTMLDivElement;
   const successMessage = document.getElementById('success-message') as HTMLDivElement;
-  
+
+  function getT(key) {
+    const keys = key.split('.');
+    let value = t;
+    for (const k of keys) {
+      value = value[k];
+      if (value === undefined) return key;
+    }
+    return value;
+  }
+
   function clearMessages() {
     errorMessage.classList.add('hidden');
     successMessage.classList.add('hidden');
   }
-  
+
   form.addEventListener('submit', async (e: Event) => {
     e.preventDefault();
-    
+
     const currentPassword = (document.getElementById('currentPassword') as HTMLInputElement).value;
     const newPassword = (document.getElementById('newPassword') as HTMLInputElement).value;
     const confirmPassword = (document.getElementById('confirmPassword') as HTMLInputElement).value;
-    
+
     clearMessages();
-    
+
     if (newPassword !== confirmPassword) {
-      errorMessage.textContent = 'New passwords do not match';
+      errorMessage.textContent = getT('admin.passwordMismatch');
       errorMessage.classList.remove('hidden');
       return;
     }
-    
+
     if (newPassword === currentPassword) {
-      errorMessage.textContent = 'New password must be different from current password';
+      errorMessage.textContent = getT('admin.passwordDifferent');
       errorMessage.classList.remove('hidden');
       return;
     }
-    
+
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Updating...';
-    
+    submitBtn.textContent = getT('admin.updating');
+
     const token = localStorage.getItem('adminToken');
-    
+
     try {
       const response = await fetch('/admin/api/change-password', {
         method: 'POST',
@@ -151,31 +174,31 @@ const username = Astro.locals.admin?.username || 'Admin';
         },
         body: JSON.stringify({ currentPassword, newPassword })
       });
-      
+
       const result = await response.json();
-      
+
       if (!result.success) {
-        errorMessage.textContent = result.error || 'An error occurred';
+        errorMessage.textContent = result.error || getT('admin.anErrorOccurred');
         errorMessage.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Update Password';
+        submitBtn.textContent = getT('admin.updatePassword');
         return;
       }
-      
-      successMessage.textContent = 'Password updated successfully!';
+
+      successMessage.textContent = getT('admin.passwordChanged');
       successMessage.classList.remove('hidden');
       form.reset();
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Update Password';
-      
+      submitBtn.textContent = getT('admin.updatePassword');
+
       setTimeout(() => {
         clearMessages();
       }, 3000);
     } catch (error) {
-      errorMessage.textContent = 'Network error. Please try again.';
+      errorMessage.textContent = getT('admin.networkError');
       errorMessage.classList.remove('hidden');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Update Password';
+      submitBtn.textContent = getT('admin.updatePassword');
     }
   });
 </script>

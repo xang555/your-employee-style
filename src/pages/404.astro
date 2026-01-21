@@ -1,10 +1,23 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getTranslations, type Locale } from '../lib/translations';
 
 const { pathname } = Astro.url;
+const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
+const trans = getTranslations(locale);
+
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = trans;
+  for (const k of keys) {
+    value = value[k];
+    if (value === undefined) return key;
+  }
+  return value as string;
+}
 ---
 
-<Layout title="Page Not Found">
+<Layout title={t('errors.notFound')}>
   <main class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 py-12">
     <div class="max-w-md w-full text-center">
       <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
@@ -25,17 +38,17 @@ const { pathname } = Astro.url;
         </div>
         
         <h1 class="text-4xl font-bold text-gray-900 mb-4">404</h1>
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Page Not Found</h2>
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">{t('errors.notFound')}</h2>
         
         <p class="text-gray-600 mb-8">
-          The page you're looking for doesn't exist or has been moved.
+          {t('errors.notFoundDesc')}
         </p>
         
         <a
           href="/"
           class="block w-full px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-all"
         >
-          Take Assessment
+          {t('errors.goHome')}
         </a>
       </div>
     </div>

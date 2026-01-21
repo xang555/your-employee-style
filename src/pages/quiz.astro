@@ -1,15 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { questions } from '../lib/questions';
+import { getTranslations, type Locale } from '../lib/translations';
+
+const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
+const trans = getTranslations(locale);
+
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: any = trans;
+  for (const k of keys) {
+    value = value[k];
+    if (value === undefined) return key;
+  }
+  return value as string;
+}
 ---
 
-<Layout title="Assessment - Employee Style">
+<Layout title={`${t('quiz.title')} - ${locale === 'th' ? 'แบบประเมินสไตล์การทำงาน' : 'Employee Style'}`}>
   <main class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
     <div class="max-w-3xl mx-auto">
       <!-- Progress Bar -->
       <div class="mb-8">
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium text-gray-700">Question <span id="current-question">1</span> of 10</span>
+          <span class="text-sm font-medium text-gray-700">{t('quiz.questionOf')} <span id="current-question">1</span> {t('common.of')} 10</span>
           <span class="text-sm font-medium text-primary-600" id="progress-percent">10%</span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -31,24 +45,24 @@ import { questions } from '../lib/questions';
           class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled
         >
-          ← Back
+          ← {t('quiz.back')}
         </button>
         <button
           id="next-btn"
           class="px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled
         >
-          Next →
+          {t('quiz.next')}
         </button>
       </div>
     </div>
   </main>
 </Layout>
 
-<script define:vars={{ questions }}>
+<script define:vars={{ questions, trans, locale }}>
   const userName = sessionStorage.getItem('userName');
   const userEmail = sessionStorage.getItem('userEmail');
-  
+
   if (!userName || !userEmail) {
     window.location.href = '/onboarding';
   }
@@ -63,13 +77,26 @@ import { questions } from '../lib/questions';
   const backBtn = document.getElementById('back-btn');
   const nextBtn = document.getElementById('next-btn');
 
+  function getT(key) {
+    const keys = key.split('.');
+    let value = trans;
+    for (const k of keys) {
+      value = value[k];
+      if (value === undefined) return key;
+    }
+    return value;
+  }
+
   function renderQuestion() {
     const question = questions[currentQuestionIndex];
-    
+    const q = question.id;
+    const qText = getQText(q);
+
     const answersHtml = question.answers.map((answer) => {
       const checked = answers[currentQuestionIndex] === answer.categoryId ? 'checked' : '';
+      const ansText = getAnswerText(q, answer.id);
       return `
-        <label class="block cursor-pointer">
+        <label class="block cursor-pointer group">
           <input
             type="radio"
             name="question-${question.id}"
@@ -77,15 +104,15 @@ import { questions } from '../lib/questions';
             class="hidden peer"
             ${checked}
           />
-          <div class="p-5 border-2 border-gray-200 rounded-xl peer-checked:border-primary-600 peer-checked:bg-primary-50 hover:border-primary-300 transition-all">
-            <span class="text-gray-900 font-medium">${answer.text}</span>
+          <div class="p-5 border-2 border-gray-200 rounded-xl peer-checked:border-primary-600 peer-checked:bg-primary-50 hover:border-primary-300 transition-all cursor-pointer">
+            <span class="text-gray-900 font-medium">${ansText}</span>
           </div>
         </label>
       `;
     }).join('');
 
     quizContainer.innerHTML = `
-      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8">${question.text}</h2>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8">${qText}</h2>
       <div class="space-y-4">
         ${answersHtml}
       </div>
@@ -107,7 +134,81 @@ import { questions } from '../lib/questions';
 
     backBtn.disabled = currentQuestionIndex === 0;
     nextBtn.disabled = answers[currentQuestionIndex] === null;
-    nextBtn.textContent = currentQuestionIndex === 9 ? 'Submit' : 'Next →';
+    const isLastQuestion = currentQuestionIndex === 9;
+    nextBtn.textContent = isLastQuestion ? getT('common.submit') : getT('quiz.next');
+  }
+
+  function getQText(id) {
+    const question = questions.find(q => q.id === id);
+    
+    if (locale === 'th') {
+      const thQuestions = {
+        1: 'อะไรคือแรงบันดาลใจสำคัญที่สุดของคุณในอาชีพ?',
+        2: 'คุณชอบทำงานอย่างไร?',
+        3: 'สภาพแวดล้อมงานแบบไหนเหมาะกับคุณ?',
+        4: 'บทบาทใดทำให้คุณรู้สึกเริ่ม?',
+        5: 'สิ่งใดสำคัญที่สุดสำหรับคุณในการทำงาน?',
+        6: 'คุณให้ความสำคัญกับรางวัลใดที่สุด?',
+        7: 'คุณจัดการกับงานประจำเป็นอย่างไร?',
+        8: 'วัฒนธรรมการทำงานที่เหมาะสมบทกับคุณ?',
+        9: 'ความสำเร็จด้านอาชีพอะไรที่ทำให้คุณตื่นเต้นมากที่สุด?',
+        10: 'สิ่งใดที่ขับเคลื่อนการตัดสินใจอาชีพของคุณ?'
+      };
+      return thQuestions[id] || question?.text || '';
+    }
+    return question?.text || '';
+  }
+
+  function getAnswerText(qId, aId) {
+    const question = questions.find(q => q.id === qId);
+    const answer = question?.answers.find(a => a.id === aId);
+    
+    if (locale === 'th') {
+      const thAnswers = {
+        '1a': 'ความมั่นคงและเสถียนในงาน',
+        '1b': 'การสร้างนวัตกรรมที่นวัตกรรม',
+        '1c': 'การสร้างความสัมพันธ์กับผู้อื่น',
+        '1d': 'ผลตอบแทนและสวัสดีการงาน',
+        '2a': 'กลายเป็นนักชำนาญชำนาญในสาขาของตนเอง',
+        '2b': 'เป็นผู้นำและการตัดสินใจ',
+        '2c': 'ทำงานด้วยเสรีภาพและความหลากหลาย',
+        '2d': 'ในสภาพแว่งเฉียบึ้ง',
+        '3a': 'คึกคักและมีปฏิสัมพันธน์กับผู้อื่น',
+        '3b': 'ทำงานอย่างอิสระโดยไม่ต้องมีผู้ควบคุม',
+        '3c': 'เสถียนและมีการคาดหวังชัดเจน',
+        '3d': 'มีการแข่งขันและมีโอกาสการได้รับการยอมรับ',
+        '4a': 'เป็นผู้รับผิดชอบและชี้นำ',
+        '4b': 'ทำงานอย่างอิสระตามตารางของตนเอง',
+        '4c': 'บรรลุคเป้าหมายและชนะ',
+        '4d': 'มีหน้าที่ชัดเจนและมีความรับผิดชอบ',
+        '5a': 'ความสัมพันธน์ของทีมแบบใหม่ร่วมกัน',
+        '5b': 'การพัฒนาความชำนาญชำนาญเฉพาะ',
+        '5c': 'การทำงานสร้างสรรมค์และหลากหลาย',
+        '5d': 'มีอำนาจและอำนาจต่อผู้อื่น',
+        '6a': 'การยอมรับสาธารณะเป็นสาธารณะสาธารณะ',
+        '6b': 'โอกาสการในการเรียนรู้และพัฒนาความชำนาญชำนาญเฉพาะ',
+        '6c': 'เงินเดือนที่แขงขันและโบนัส',
+        '6d': 'มีมิตรภาพที่ดีกับเพื่อนร่วมงาน',
+        '7a': 'ฉันรู้สึกเบอะ ฉันต้องการหลากหลาย',
+        '7b': 'ฉันชอบมีการควบคุมงานของตนเองอย่างเต็มที่',
+        '7c': 'ฉันชอบทำเมื่อทำรวมกับทีม',
+        '7d': 'ฉันยอมรับได้ถ้าเงินดี',
+        '8a': 'ปลอดภัยคาดการได้และสม่ำเสมอง',
+        '8b': 'ยืดหยุ่นด้วยอิสระในการเลือกงาน',
+        '8c': 'สนุก ร่าเริ่ง และบันเทิด',
+        '8d': 'มุ่งเน้นผลลัพธ์และมีค่าตอบแทนที่ชัดเจน',
+        '9a': 'ได้รับการยอมรับว่าเป็นพนักงานที่ดีที่สุด',
+        '9b': 'อิสระในบทบาทของตนเอง',
+        '9c': 'สร้างบรรยากาศที่เป็นบวกและสนุกสนาน',
+        '9d': 'กลายเป็นผู้เชี่ยวชำนาญที่มีชื่อเสียง',
+        '10a': 'โอกาสในการเป็นผู้นำ',
+        '10b': 'โอกาสในการได้รับรางวัลและการยอมรับ',
+        '10c': 'เสถียรภาพในระยะยาว',
+        '10d': 'ความลึกของความเชี่ยวชาญที่จะได้รับ'
+      };
+      return thAnswers[aId] || answer?.text || '';
+    }
+    return answer?.text || '';
   }
 
   backBtn.addEventListener('click', () => {
@@ -128,7 +229,7 @@ import { questions } from '../lib/questions';
 
   async function submitQuiz() {
     nextBtn.disabled = true;
-    nextBtn.textContent = 'Submitting...';
+    nextBtn.textContent = getT('quiz.submitting');
 
     try {
       const response = await fetch('/api/submit', {
@@ -149,15 +250,15 @@ import { questions } from '../lib/questions';
         sessionStorage.clear();
         window.location.href = `/result/${data.userId}`;
       } else {
-        alert('Error submitting quiz: ' + data.error);
+        alert(getT('quiz.submittingError') + data.error);
         nextBtn.disabled = false;
-        nextBtn.textContent = 'Submit';
+        nextBtn.textContent = getT('common.submit');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      alert(getT('quiz.errorOccurred'));
       nextBtn.disabled = false;
-      nextBtn.textContent = 'Submit';
+      nextBtn.textContent = getT('common.submit');
     }
   }
 

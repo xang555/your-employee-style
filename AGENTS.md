@@ -18,6 +18,62 @@ yarn tsx scripts/init-db.ts
 # Note: Use yarn, not npm (npm has permission issues on this system)
 ```
 
+## Internationalization (i18n)
+
+### Supported Languages
+- **Thai (th)** - Default language
+- **English (en)** - Optional language
+
+### Locale Detection
+1. URL parameter: `?lang=en` or `?lang=th`
+2. Cookie: `locale` cookie (1 year expiration)
+3. Default: Thai if no cookie or URL parameter
+
+### Using Translations
+```typescript
+// In pages
+const locale = Astro.cookies.get('locale')?.value || 'th';
+const { getTranslations } = await import('../lib/translations');
+const trans = getTranslations(locale);
+
+// Helper function for dot notation
+function t(key: string): string {
+  const keys = key.split('.');
+  let value = trans;
+  for (const k of keys) {
+    value = value[k];
+  }
+  return value;
+}
+
+// Example
+t('landing.heroTitle') // Returns translated string based on locale
+```
+
+### Translation Keys
+All translations are in `src/lib/translations.ts` with these sections:
+- `common` - Shared UI text
+- `landing` - Landing page
+- `onboarding` - User form
+- `quiz` - Assessment questions
+- `result` - Results page
+- `admin` - Admin dashboard
+- `errors` - Error pages
+
+### Language Switcher
+Import the language switcher component:
+```astro
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+<LanguageSwitcher />
+```
+
+### Middleware Setup
+The middleware in `src/middleware.ts` handles:
+- Locale detection from URL params or cookies
+- Setting locale cookie
+- Providing `Astro.locals.locale` and `Astro.locals.t` to pages
+- Admin authentication protection
+
 ## Admin Dashboard
 
 The application includes a production-grade admin dashboard at `/admin` with:
@@ -48,6 +104,20 @@ The application includes a production-grade admin dashboard at `/admin` with:
 - 24-hour session expiration
 - Middleware protection for all admin routes except `/admin/login`
 - Automatic redirect if not authenticated
+
+### Style Type Icons
+Each of the 9 employee styles has a unique SVG icon and color scheme:
+- Security Seeker: Shield (blue)
+- Social Connector: Network (green)
+- Star Performer: Star (yellow)
+- Leader: Crown (purple)
+- Reward Seeker: Coin (emerald)
+- Specialist: Target/Badge (orange)
+- Creative Innovator: Lightbulb (pink)
+- Autonomous: Compass (cyan)
+- Entertainer: Performance mask (rose)
+
+Icons are available in `src/lib/icons.ts` with helper functions for easy integration.
 
 ## Testing
 
