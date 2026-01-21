@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: your-employee-style:latest
+    container_name: your-employee-style-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-4321}:4321"
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT:-4321}
+      # Add your environment variables here or reference from .env file
+      # - DATABASE_URL=${DATABASE_URL}
+      # - SESSION_SECRET=${SESSION_SECRET}
+    volumes:
+      # Persist database and uploaded files
+      - ./data:/app/data
+      - ./db:/app/db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4321/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+networks:
+  app-network:
+    driver: bridge
+
+# Optional: For production with reverse proxy (nginx/traefik)
+# Uncomment and configure as needed
+#
+# volumes:
+#   app-data:
+#     driver: local
