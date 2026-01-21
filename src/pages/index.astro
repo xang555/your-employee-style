@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import { TOTAL_QUESTIONS, TOTAL_STYLE_TYPES, ESTIMATED_MINUTES } from '../lib/questions';
 import { getTranslations, type Locale } from '../lib/translations';
 
 const url = new URL(Astro.url);
@@ -68,15 +69,15 @@ function t(key: string): string {
         <!-- Stats -->
         <div class="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
           <div class="text-center">
-            <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">10</div>
+            <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">{TOTAL_QUESTIONS}</div>
             <div class="text-sm text-gray-600">{t('common.questions')}</div>
           </div>
           <div class="text-center">
-            <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">9</div>
+            <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">{TOTAL_STYLE_TYPES}</div>
             <div class="text-sm text-gray-600">{t('common.styleTypes')}</div>
           </div>
           <div class="text-center">
-            <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">3</div>
+            <div class="text-3xl md:text-4xl font-bold text-primary-600 mb-2">{ESTIMATED_MINUTES}</div>
             <div class="text-sm text-gray-600">{t('common.minutes')}</div>
           </div>
         </div>

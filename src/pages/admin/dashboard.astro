@@ -1,5 +1,6 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { TOTAL_STYLE_TYPES } from '../../lib/questions';
 import { getTranslations, type Locale } from '../../lib/translations';
 
 const username = Astro.locals.admin?.username || 'Admin';
@@ -74,7 +75,7 @@ function t(key: string): string {
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-600 font-medium">{t('admin.uniqueStyles')}</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2" id="unique-styles">9</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2" id="unique-styles">{TOTAL_STYLE_TYPES}</p>
           </div>
           <div class="bg-purple-100 p-3 rounded-full">
             <svg

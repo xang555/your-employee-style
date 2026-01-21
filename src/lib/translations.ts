@@ -187,7 +187,7 @@ export const translations: Record<Locale, Translations> = {
     },
     landing: {
       heroTitle: 'ค้นพบสไตล์การทำงานของคุณ',
-      heroSubtitle: 'ทำแบบประเมิน 10 ข้อ เพื่อค้นพบลักษณะการทำงาน จุดแข็ง และแรงบันดาลใจของคุณ',
+      heroSubtitle: 'ทำแบบประเมินเพื่อค้นพบลักษณะการทำงาน จุดแข็ง และแรงบันดาลใจของคุณ',
       heroCTA: 'เริ่มทำแบบประเมิน',
       feature1Title: 'เรียบง่าย',
       feature1Desc: 'ตอบคำถามแบบง่าย ไม่เกิน 5 นาที',
@@ -340,7 +340,7 @@ export const translations: Record<Locale, Translations> = {
     },
     landing: {
       heroTitle: 'Discover Your Professional DNA',
-      heroSubtitle: 'Take our 10-question assessment to uncover your work style, strengths, and motivations',
+      heroSubtitle: 'Take our assessment to uncover your work style, strengths, and motivations',
       heroCTA: 'Start Assessment',
       feature1Title: 'Simple & Quick',
       feature1Desc: 'Complete in just 5 minutes with easy-to-answer questions',

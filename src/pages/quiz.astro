@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { questions } from '../lib/questions';
+import { questions, TOTAL_QUESTIONS } from '../lib/questions';
 import { getTranslations, type Locale } from '../lib/translations';
 
 const locale = (Astro.cookies.get('locale')?.value || 'th') as Locale;
@@ -23,11 +23,11 @@ function t(key: string): string {
       <!-- Progress Bar -->
       <div class="mb-8">
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium text-gray-700">{t('quiz.questionOf')} <span id="current-question">1</span> {t('common.of')} 10</span>
-          <span class="text-sm font-medium text-primary-600" id="progress-percent">10%</span>
+          <span class="text-sm font-medium text-gray-700">{t('quiz.questionOf')} <span id="current-question">1</span> {t('common.of')} {TOTAL_QUESTIONS}</span>
+          <span class="text-sm font-medium text-primary-600" id="progress-percent">0%</span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div id="progress-bar" class="bg-primary-600 h-2.5 rounded-full transition-all duration-300" style="width: 10%"></div>
+          <div id="progress-bar" class="bg-primary-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
         </div>
       </div>
 
@@ -67,8 +67,9 @@ function t(key: string): string {
     window.location.href = '/onboarding';
   }
 
+  const totalQuestions = questions.length;
   let currentQuestionIndex = 0;
-  const answers = new Array(10).fill(null);
+  const answers = new Array(totalQuestions).fill(null);
 
   const quizContainer = document.getElementById('quiz-container');
   const progressBar = document.getElementById('progress-bar');
@@ -134,14 +135,14 @@ function t(key: string): string {
       });
     });
 
-    const progress = ((currentQuestionIndex + 1) / 10) * 100;
+    const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
     progressBar.style.width = `${progress}%`;
     currentQuestionSpan.textContent = (currentQuestionIndex + 1).toString();
     progressPercent.textContent = `${progress}%`;
 
     backBtn.disabled = currentQuestionIndex === 0;
     nextBtn.disabled = answers[currentQuestionIndex] === null;
-    const isLastQuestion = currentQuestionIndex === 9;
+    const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
     nextBtn.textContent = isLastQuestion ? getT('common.submit') : getT('quiz.next');
   }
 
@@ -153,7 +154,7 @@ function t(key: string): string {
   });
 
   nextBtn.addEventListener('click', async () => {
-    if (currentQuestionIndex < 9) {
+    if (currentQuestionIndex < totalQuestions - 1) {
       currentQuestionIndex++;
       renderQuestion();
     } else {
