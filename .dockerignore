@@ -59,3 +59,11 @@ coverage
 .cache
 temp
 tmp
+
+# Runtime database files (preserve directory structure)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# Keep .gitkeep files for empty directories
+!.gitkeep
