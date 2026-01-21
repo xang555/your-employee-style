@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { questions } from '../lib/questions';
 import { getTranslations, type Locale } from '../lib/translations';
 
-const locale = (Astro.cookies.get('locale')?.value || 'th') as 'th' | 'en';
+const locale = (Astro.cookies.get('locale')?.value || 'th') as Locale;
 const trans = getTranslations(locale);
 
 function t(key: string): string {
@@ -17,7 +17,7 @@ function t(key: string): string {
 }
 ---
 
-<Layout title={`${t('quiz.title')} - ${locale === 'th' ? 'แบบประเมินสไตล์การทำงาน' : 'Employee Style'}`}>
+<Layout title={`${t('quiz.title')} - ${t('quiz.subtitle')}`}>
   <main class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
     <div class="max-w-3xl mx-auto">
       <!-- Progress Bar -->
@@ -87,14 +87,21 @@ function t(key: string): string {
     return value;
   }
 
+  function getQuestionText(question, locale) {
+    return locale === 'th' ? question.textTh : question.text;
+  }
+
+  function getAnswerText(answer, locale) {
+    return locale === 'th' ? answer.textTh : answer.text;
+  }
+
   function renderQuestion() {
     const question = questions[currentQuestionIndex];
-    const q = question.id;
-    const qText = getQText(q);
+    const qText = getQuestionText(question, locale);
 
     const answersHtml = question.answers.map((answer) => {
       const checked = answers[currentQuestionIndex] === answer.categoryId ? 'checked' : '';
-      const ansText = getAnswerText(q, answer.id);
+      const ansText = getAnswerText(answer, locale);
       return `
         <label class="block cursor-pointer group">
           <input
@@ -136,79 +143,6 @@ function t(key: string): string {
     nextBtn.disabled = answers[currentQuestionIndex] === null;
     const isLastQuestion = currentQuestionIndex === 9;
     nextBtn.textContent = isLastQuestion ? getT('common.submit') : getT('quiz.next');
-  }
-
-  function getQText(id) {
-    const question = questions.find(q => q.id === id);
-    
-    if (locale === 'th') {
-      const thQuestions = {
-        1: 'อะไรคือแรงบันดาลใจสำคัญที่สุดของคุณในอาชีพ?',
-        2: 'คุณชอบทำงานอย่างไร?',
-        3: 'สภาพแวดล้อมงานแบบไหนเหมาะกับคุณ?',
-        4: 'บทบาทใดทำให้คุณรู้สึกเริ่ม?',
-        5: 'สิ่งใดสำคัญที่สุดสำหรับคุณในการทำงาน?',
-        6: 'คุณให้ความสำคัญกับรางวัลใดที่สุด?',
-        7: 'คุณจัดการกับงานประจำเป็นอย่างไร?',
-        8: 'วัฒนธรรมการทำงานที่เหมาะสมบทกับคุณ?',
-        9: 'ความสำเร็จด้านอาชีพอะไรที่ทำให้คุณตื่นเต้นมากที่สุด?',
-        10: 'สิ่งใดที่ขับเคลื่อนการตัดสินใจอาชีพของคุณ?'
-      };
-      return thQuestions[id] || question?.text || '';
-    }
-    return question?.text || '';
-  }
-
-  function getAnswerText(qId, aId) {
-    const question = questions.find(q => q.id === qId);
-    const answer = question?.answers.find(a => a.id === aId);
-    
-    if (locale === 'th') {
-      const thAnswers = {
-        '1a': 'ความมั่นคงและเสถียนในงาน',
-        '1b': 'การสร้างนวัตกรรมที่นวัตกรรม',
-        '1c': 'การสร้างความสัมพันธ์กับผู้อื่น',
-        '1d': 'ผลตอบแทนและสวัสดีการงาน',
-        '2a': 'กลายเป็นนักชำนาญชำนาญในสาขาของตนเอง',
-        '2b': 'เป็นผู้นำและการตัดสินใจ',
-        '2c': 'ทำงานด้วยเสรีภาพและความหลากหลาย',
-        '2d': 'ในสภาพแว่งเฉียบึ้ง',
-        '3a': 'คึกคักและมีปฏิสัมพันธน์กับผู้อื่น',
-        '3b': 'ทำงานอย่างอิสระโดยไม่ต้องมีผู้ควบคุม',
-        '3c': 'เสถียนและมีการคาดหวังชัดเจน',
-        '3d': 'มีการแข่งขันและมีโอกาสการได้รับการยอมรับ',
-        '4a': 'เป็นผู้รับผิดชอบและชี้นำ',
-        '4b': 'ทำงานอย่างอิสระตามตารางของตนเอง',
-        '4c': 'บรรลุคเป้าหมายและชนะ',
-        '4d': 'มีหน้าที่ชัดเจนและมีความรับผิดชอบ',
-        '5a': 'ความสัมพันธน์ของทีมแบบใหม่ร่วมกัน',
-        '5b': 'การพัฒนาความชำนาญชำนาญเฉพาะ',
-        '5c': 'การทำงานสร้างสรรมค์และหลากหลาย',
-        '5d': 'มีอำนาจและอำนาจต่อผู้อื่น',
-        '6a': 'การยอมรับสาธารณะเป็นสาธารณะสาธารณะ',
-        '6b': 'โอกาสการในการเรียนรู้และพัฒนาความชำนาญชำนาญเฉพาะ',
-        '6c': 'เงินเดือนที่แขงขันและโบนัส',
-        '6d': 'มีมิตรภาพที่ดีกับเพื่อนร่วมงาน',
-        '7a': 'ฉันรู้สึกเบอะ ฉันต้องการหลากหลาย',
-        '7b': 'ฉันชอบมีการควบคุมงานของตนเองอย่างเต็มที่',
-        '7c': 'ฉันชอบทำเมื่อทำรวมกับทีม',
-        '7d': 'ฉันยอมรับได้ถ้าเงินดี',
-        '8a': 'ปลอดภัยคาดการได้และสม่ำเสมอง',
-        '8b': 'ยืดหยุ่นด้วยอิสระในการเลือกงาน',
-        '8c': 'สนุก ร่าเริ่ง และบันเทิด',
-        '8d': 'มุ่งเน้นผลลัพธ์และมีค่าตอบแทนที่ชัดเจน',
-        '9a': 'ได้รับการยอมรับว่าเป็นพนักงานที่ดีที่สุด',
-        '9b': 'อิสระในบทบาทของตนเอง',
-        '9c': 'สร้างบรรยากาศที่เป็นบวกและสนุกสนาน',
-        '9d': 'กลายเป็นผู้เชี่ยวชำนาญที่มีชื่อเสียง',
-        '10a': 'โอกาสในการเป็นผู้นำ',
-        '10b': 'โอกาสในการได้รับรางวัลและการยอมรับ',
-        '10c': 'เสถียรภาพในระยะยาว',
-        '10d': 'ความลึกของความเชี่ยวชาญที่จะได้รับ'
-      };
-      return thAnswers[aId] || answer?.text || '';
-    }
-    return answer?.text || '';
   }
 
   backBtn.addEventListener('click', () => {

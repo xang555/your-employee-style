@@ -54,6 +54,7 @@ export interface Translations {
   };
   quiz: {
     title: string;
+    subtitle: string;
     questionOf: string;
     back: string;
     next: string;
@@ -208,6 +209,7 @@ export const translations: Record<Locale, Translations> = {
     },
     quiz: {
       title: 'แบบประเมิน',
+      subtitle: 'แบบประเมินสไตล์การทำงาน',
       questionOf: 'คำถามที่',
       back: 'ย้อนกลับ',
       next: 'ถัดไป',
@@ -360,6 +362,7 @@ export const translations: Record<Locale, Translations> = {
     },
     quiz: {
       title: 'Assessment',
+      subtitle: 'Employee Style Assessment',
       questionOf: 'Question',
       back: 'Back',
       next: 'Next',
