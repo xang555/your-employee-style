@@ -66,18 +66,17 @@ COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
-# Create all necessary runtime directories
-RUN mkdir -p /app/data /app/uploads /app/db /app/migrations && \
-    chown -R nodejs:nodejs /app/data /app/uploads /app/db /app/migrations
-
 # Copy db directory contents from builder (config files, seed files)
-# Using wildcard to handle case where directory might be sparse
 COPY --from=builder --chown=nodejs:nodejs /app/db /app/db
 
 # Copy migrations directory from builder (may be empty)
 COPY --from=builder --chown=nodejs:nodejs /app/migrations /app/migrations
 
-# Note: /app/data directory is intentionally created empty for runtime database files
+# Create runtime directories and set proper permissions
+# These need to be writable by the nodejs user for SQLite database
+RUN mkdir -p /app/data /app/uploads && \
+    chown -R nodejs:nodejs /app/data /app/uploads /app/db /app/migrations && \
+    chmod -R 775 /app/data /app/uploads
 
 # Switch to non-root user
 USER nodejs

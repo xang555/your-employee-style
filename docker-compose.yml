@@ -18,9 +18,10 @@ services:
       # - DATABASE_URL=${DATABASE_URL}
       # - SESSION_SECRET=${SESSION_SECRET}
     volumes:
-      # Persist database and uploaded files
+      # Persist SQLite database and runtime files
       - ./data:/app/data
-      - ./db:/app/db
+      # Persist uploaded files/posters
+      - ./uploads:/app/uploads
     networks:
       - app-network
     healthcheck:
