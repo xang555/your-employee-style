@@ -8,6 +8,10 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone'
   }),
+  server: {
+    host: true, // Listen on all interfaces (0.0.0.0)
+    port: 4321
+  },
   integrations: [
     tailwind()
   ]

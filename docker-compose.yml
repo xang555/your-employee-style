@@ -14,6 +14,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=${PORT:-4321}
+      - HOST=0.0.0.0
       # Add your environment variables here or reference from .env file
       # - DATABASE_URL=${DATABASE_URL}
       # - SESSION_SECRET=${SESSION_SECRET}
