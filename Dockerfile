@@ -59,9 +59,8 @@ ENV NODE_ENV=production
 # Copy package files
 COPY package.json yarn.lock ./
 
-# Install only production dependencies
-RUN yarn install --frozen-lockfile --production && \
-    yarn cache clean
+# Copy node_modules from builder stage (already compiled with native modules)
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
 # Copy built application from builder stage
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
