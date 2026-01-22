@@ -18,10 +18,10 @@ services:
       # - DATABASE_URL=${DATABASE_URL}
       # - SESSION_SECRET=${SESSION_SECRET}
     volumes:
-      # Persist SQLite database and runtime files
-      - ./data:/app/data
+      # Persist SQLite database and runtime files (using named volumes for proper ownership)
+      - app-data:/app/data
       # Persist uploaded files/posters
-      - ./uploads:/app/uploads
+      - app-uploads:/app/uploads
     networks:
       - app-network
     healthcheck:
@@ -52,9 +52,8 @@ networks:
   app-network:
     driver: bridge
 
-# Optional: For production with reverse proxy (nginx/traefik)
-# Uncomment and configure as needed
-#
-# volumes:
-#   app-data:
-#     driver: local
+volumes:
+  app-data:
+    driver: local
+  app-uploads:
+    driver: local
