@@ -1,17 +1,11 @@
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
+import cloudflare from '@astrojs/cloudflare';
 import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-  site: 'http://localhost:4321',
+  site: 'https://your-employee-style.pages.dev', // Update with your actual Cloudflare Pages URL
   output: 'server',
-  adapter: node({
-    mode: 'standalone'
-  }),
-  server: {
-    host: true, // Listen on all interfaces (0.0.0.0)
-    port: 4321
-  },
+  adapter: cloudflare(),
   integrations: [
     tailwind()
   ]

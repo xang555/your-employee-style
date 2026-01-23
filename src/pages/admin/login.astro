@@ -16,7 +16,7 @@ function t(key: string): string {
   return value as string;
 }
 
-const isAdminSetup = adminExists();
+const isAdminSetup = await adminExists();
 ---
 
 <Layout title={t('admin.loginTitle')}>

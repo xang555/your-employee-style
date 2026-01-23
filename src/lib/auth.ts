@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { type Admin, getAdminByUsername } from './db';
+import { type Admin, getAdminByUsernameAsync } from './db';
 
 const SALT_ROUNDS = 10;
 
@@ -18,7 +18,7 @@ export async function authenticateAdmin(
   username: string,
   password: string
 ): Promise<Admin | null> {
-  const admin = getAdminByUsername(username);
+  const admin = await getAdminByUsernameAsync(username);
   if (!admin) {
     return null;
   }

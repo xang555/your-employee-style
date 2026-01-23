@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import { getAdminByUsername, updateAdminPassword } from '../../../lib/db';
+import { getAdminByUsernameAsync, updateAdminPassword } from '../../../lib/db';
 import { getSession, hashPassword, verifyPassword } from '../../../lib/auth';
 
 const changePasswordSchema = z.object({
@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
     const validatedData = changePasswordSchema.parse(body);
 
-    const admin = getAdminByUsername(session.username);
+    const admin = await getAdminByUsernameAsync(session.username);
     if (!admin) {
       return new Response(
         JSON.stringify({ success: false, error: 'Admin not found' }),
@@ -44,7 +44,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const newPasswordHash = await hashPassword(validatedData.newPassword);
-    updateAdminPassword(session.username, newPasswordHash);
+    await updateAdminPassword(session.username, newPasswordHash);
 
     return new Response(
       JSON.stringify({ success: true, message: 'Password updated successfully' }),

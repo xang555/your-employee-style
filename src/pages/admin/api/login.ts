@@ -10,7 +10,8 @@ const loginSchema = z.object({
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    if (!adminExists()) {
+    const hasAdmin = await adminExists();
+    if (!hasAdmin) {
       return new Response(
         JSON.stringify({ success: false, error: 'Admin not setup' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }

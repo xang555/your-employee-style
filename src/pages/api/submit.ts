@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import db, { type User, type Result, generateAccessToken } from '../../lib/db';
+import { generateAccessToken, createUser } from '../../lib/db';
 import { quizSubmissionSchema } from '../../lib/validation';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -32,19 +32,12 @@ export const POST: APIRoute = async ({ request }) => {
     // Generate a secure access token
     const accessToken = generateAccessToken();
 
-    const insertResult = db.prepare(`
-      INSERT INTO users (name, email, result_id, access_token)
-      VALUES (?, ?, ?, ?)
-    `);
-
-    const result = insertResult.run(
+    const userId = await createUser(
       validatedData.name,
       validatedData.email,
       winnerCategoryId,
       accessToken
     );
-
-    const userId = result.lastInsertRowid as number;
 
     return new Response(
       JSON.stringify({

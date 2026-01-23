@@ -1,12 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getSession } from '../../../lib/auth';
-import db from '../../../lib/db';
-import type { User, Result } from '../../../lib/db';
-
-interface UserWithResult extends User {
-  result_name: string;
-  result_definition: string;
-}
+import { getAllUsers } from '../../../lib/db';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
@@ -20,14 +14,7 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    const users = db
-      .prepare(`
-        SELECT u.*, r.name as result_name, r.definition as result_definition
-        FROM users u
-        LEFT JOIN results r ON u.result_id = r.id
-        ORDER BY u.created_at DESC
-      `)
-      .all() as UserWithResult[];
+    const users = await getAllUsers();
 
     return new Response(
       JSON.stringify({ success: true, data: users }),

@@ -60,3 +60,9 @@ tmp/
 
 #.ai
 .ai
+
+# Cloudflare
+.wrangler/
+.wranglerdev/
+.dev.vars
+mf/

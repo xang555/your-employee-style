@@ -11,8 +11,9 @@ const setupSchema = z.object({
 export const POST: APIRoute = async ({ request }) => {
   try {
     console.log('Setup request received');
-    
-    if (adminExists()) {
+
+    const hasAdmin = await adminExists();
+    if (hasAdmin) {
       console.log('Admin already exists');
       return new Response(
         JSON.stringify({ success: false, error: 'Admin already exists' }),
@@ -22,14 +23,14 @@ export const POST: APIRoute = async ({ request }) => {
 
     const body = await request.json();
     console.log('Request body:', { username: body.username, password: '***' });
-    
+
     const validatedData = setupSchema.parse(body);
     console.log('Validation passed');
 
     const passwordHash = await hashPassword(validatedData.password);
     console.log('Password hashed');
-    
-    createAdmin(validatedData.username, passwordHash);
+
+    await createAdmin(validatedData.username, passwordHash);
     console.log('Admin created');
 
     const sessionToken = createSession(validatedData.username);
