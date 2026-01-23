@@ -218,3 +218,4 @@ This drives engagement by showing personalized content in share previews.
 - No authentication required (public assessment)
 - GDPR-friendly (minimal data collection)
 - Production-ready with proper error handling
+- MIT
